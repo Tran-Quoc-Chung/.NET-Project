@@ -13,7 +13,24 @@ namespace server.Data{
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<UserToRole> UserToRoles { get; set; }
-        public DbSet<RoleToPermission> RoleToPermissions { get; set; }
+        public DbSet<Original> Originals { get; set; }
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<DialShape> DialShapes { get; set; }
+        public DbSet<DialSize> DialSizes { get; set; }
+        public DbSet<Gender> Genders { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<StrapMaterial> StrapMaterials { get; set; }
+        public DbSet<VoucherStatus> VoucherStatuss { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<WaterResistance> WaterResistances { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<StatusInvoice> StatusInvoices { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartDetail> CartDetails { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +43,27 @@ namespace server.Data{
             });
             modelBuilder.Entity<RoleToPermission>().ToTable("RoleToPermission").HasKey(table=>new{
                 table.RoleID, table.PermissionID
-            });  
+            });
+            modelBuilder.Entity<Customer>().ToTable("Customer").HasKey(key=>key.CustomerID);
+            modelBuilder.Entity<Original>().ToTable("Original").HasKey(key=>key.OriginalID);
+            modelBuilder.Entity<Brand>().ToTable("Brand").HasKey(key=>key.BrandID);
+            modelBuilder.Entity<DialShape>().ToTable("DialShape").HasKey(key=>key.DialShapeID);     
+            modelBuilder.Entity<DialSize>().ToTable("DialSize").HasKey(key=>key.DialSizeID);
+            modelBuilder.Entity<Tag>().ToTable("Tag").HasKey(key=>key.TagID);
+            modelBuilder.Entity<WaterResistance>().ToTable("WaterResistance").HasKey(key=>key.WaterResistanceID);
+            modelBuilder.Entity<StrapMaterial>().ToTable("StrapMaterial").HasKey(key=>key.StrapMaterialID);
+            modelBuilder.Entity<Gender>().ToTable("Gender").HasKey(key=>key.GenderID);
+            modelBuilder.Entity<Product>().ToTable("Product").HasKey(key=>key.ProductID);
+            modelBuilder.Entity<Cart>().ToTable("Cart").HasKey(key=>key.CartID);
+            modelBuilder.Entity<CartDetail>().ToTable("CartDetail").HasKey(key=>key.CartDetailID);
+            modelBuilder.Entity<VoucherStatus>().ToTable("VoucherStatus").HasKey(key=>key.VoucherStatusID);
+            modelBuilder.Entity<Voucher>().ToTable("Voucher").HasKey(key=>key.VoucherCode);
+            modelBuilder.Entity<StatusInvoice>().ToTable("StatusInvoice").HasKey(key=>key.StatusInvoiceID);
+            modelBuilder.Entity<Invoice>().ToTable("Invoice").HasKey(key=>key.InvoiceID);
+            modelBuilder.Entity<InvoiceDetail>().ToTable("InvoiceDetail").HasKey(key=>key.InvoiceDetailID);
+            modelBuilder.Entity<Comment>().ToTable("Comment").HasKey(key=>key.CommentID);
+            
+            
         }
     }
 }

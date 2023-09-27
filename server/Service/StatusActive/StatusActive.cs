@@ -21,7 +21,6 @@ public class StatusActiveService : IStatusActiveService
     {
         var serviceResponse = new ServiceResponse<GetStatusActiveDTO>();
         var dbStatusActive = await _dataContext.StatusActives.FirstOrDefaultAsync(x => x.StatusID == id);
-        Console.WriteLine(dbStatusActive);
         serviceResponse.Data = _mapper.Map<GetStatusActiveDTO>(dbStatusActive);
         return serviceResponse;
     }
@@ -29,6 +28,7 @@ public class StatusActiveService : IStatusActiveService
     {
         var serviceResponse = new ServiceResponse<List<GetStatusActiveDTO>>();
         var dbStatusActive = await _dataContext.StatusActives.ToListAsync();
+        Console.WriteLine(dbStatusActive);
         serviceResponse.Data = dbStatusActive.Select(x => _mapper.Map<GetStatusActiveDTO>(x)).ToList();
         return serviceResponse;
     }

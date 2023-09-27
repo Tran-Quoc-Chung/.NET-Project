@@ -9,7 +9,7 @@ namespace server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class StatusActiveController:ControllerBase
+public class StatusActiveController : ControllerBase
 {
     private readonly IStatusActiveService _statusActiveService;
     public StatusActiveController(IStatusActiveService statusActiveService)
@@ -20,6 +20,7 @@ public class StatusActiveController:ControllerBase
     [HttpGet]
     public async Task<ActionResult<ServiceResponse<List<GetStatusActiveDTO>>>> GetAllStatusActive()
     {
+        //ServiceResponse<List<>>
         try{
             return Ok(await _statusActiveService.GetAllStatusActive());
         }catch(Exception ex){

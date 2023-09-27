@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.Service;
+using service.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IStatusActiveService, StatusActiveService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
