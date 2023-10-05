@@ -13,6 +13,7 @@ namespace server.Data{
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<UserToRole> UserToRoles { get; set; }
+        public DbSet<RoleToPermission> RoleToPermissions { get; set; }
         public DbSet<Original> Originals { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<DialShape> DialShapes { get; set; }

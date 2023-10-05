@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
@@ -17,6 +18,7 @@ public class StatusActiveController : ControllerBase
         //_dataContext = dataContext;
         _statusActiveService = statusActiveService;
     }
+
     [HttpGet]
     public async Task<ActionResult<ServiceResponse<List<GetStatusActiveDTO>>>> GetAllStatusActive()
     {
@@ -67,7 +69,7 @@ public class StatusActiveController : ControllerBase
     }
 
     [HttpDelete("delete/{id}")]
-        public async Task<ActionResult<ServiceResponse<GetStatusActiveDTO>>> DeleteStatusActive( int id)
+    public async Task<ActionResult<ServiceResponse<GetStatusActiveDTO>>> DeleteStatusActive( int id)
     {
         var response = await _statusActiveService.DeleteStatusActive(id);
         if(response.Data == null || response.Success==false)

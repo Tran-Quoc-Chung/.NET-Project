@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "task-20230927093104_newMigration.Designer",
+      "appliesTo": "server/Migrations/20230927093104_newMigration.Designer.cs",
+      "type": "launch"
+    }
+  ]
+}

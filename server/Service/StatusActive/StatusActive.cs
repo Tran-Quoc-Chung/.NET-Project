@@ -19,17 +19,27 @@ public class StatusActiveService : IStatusActiveService
     }
     public async Task<ServiceResponse<GetStatusActiveDTO>> GetStatusActiveById(int id)
     {
+        
         var serviceResponse = new ServiceResponse<GetStatusActiveDTO>();
         var dbStatusActive = await _dataContext.StatusActives.FirstOrDefaultAsync(x => x.StatusID == id);
-        serviceResponse.Data = _mapper.Map<GetStatusActiveDTO>(dbStatusActive);
+        var result = new GetStatusActiveDTO
+        {
+            StatusID = dbStatusActive.StatusID,
+            StatusName = dbStatusActive.StatusName
+        };
+        serviceResponse.Data = result;
         return serviceResponse;
     }
     public async Task<ServiceResponse<List<GetStatusActiveDTO>>> GetAllStatusActive()
     {
         var serviceResponse = new ServiceResponse<List<GetStatusActiveDTO>>();
         var dbStatusActive = await _dataContext.StatusActives.ToListAsync();
-        Console.WriteLine(dbStatusActive);
-        serviceResponse.Data = dbStatusActive.Select(x => _mapper.Map<GetStatusActiveDTO>(x)).ToList();
+        var result = dbStatusActive.Select(x => new GetStatusActiveDTO
+        {
+            StatusID = x.StatusID,
+            StatusName = x.StatusName
+        }).ToList();
+        serviceResponse.Data = result;
         return serviceResponse;
     }
 
