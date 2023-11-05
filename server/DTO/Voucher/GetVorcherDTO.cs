@@ -2,9 +2,10 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
-namespace server.Models
+
+namespace server.DTO.Voucher
 {
-    public class Voucher
+    public class GetVoucherDTO
     {
         [Unicode]
         [Key]
@@ -12,11 +13,10 @@ namespace server.Models
         [Required]
         public float Discount { get; set; }
         [Required]
-        public User CreatedBy { get; set; }
+        public UserToRole CreatedBy { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
-        [Required]
-        public VoucherStatus VoucherStatus { get; set; }
+       
         [Required]
         public DateTime StartDate { get; set; }
         [Required]

@@ -17,6 +17,7 @@ namespace server.Models
         public WaterResistance WaterResistance { get; set;}
         public Gender Gender { get; set;}
         public DialShape DialShape { get; set;}
+        public InvoiceDetail InvoiceDetail {get; set; }
 
         
     }

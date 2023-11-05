@@ -1,26 +1,22 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-namespace server.Models
+namespace server.DTO
 {
-    public class User
+    public class AddCustomerDTO
     {
+        public int CustomerID { get; set; }
 
-        public int UserID { get; set; }
-        [Unicode]
         [Required]
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; } = string.Empty;
         [Required]
         public string UserName { get; set; } = string.Empty;
-        [Required]
+        [MaxLength(20)]
+        [MinLength(6)]
         public string UserPassword { get; set; } = string.Empty;
-        [AllowNull]
+        [Unicode]
         public string Phone { get; set; } = string.Empty;
-        public string Address { get; set; } = string.Empty;
-        [Required]
-        public StatusActive Status { get; set; }
-//
+        public DateTime Birthday { get; set; }
     }
 }
