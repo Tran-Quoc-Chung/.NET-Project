@@ -107,7 +107,9 @@ namespace server.Service
                 }
                 
                 var roleID = await _userToRoleService.GetRoleByUserId(user.UserID);
+
                 var listPermission = await _roleToPermission.GetAllPermissionByRoleID(roleID.Data.RoleID);
+
                 var userInfo = new GetUserDTO
                 {
                     Email = user.Email,
@@ -116,6 +118,7 @@ namespace server.Service
                     Phone = user.Phone,
                     RoleID = roleID.Data.RoleID != null ? roleID.Data.RoleID : null
                 };
+                var authToken = _authJwtToken.CreateToken(userInfo.Email);
                 var claims = listPermission.Data.PermissionName
                     .Select(permission => new Claim("Permission", permission)).ToList();
 
@@ -123,6 +126,7 @@ namespace server.Service
                 var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
                 await _httpContextAccessor.HttpContext.SignInAsync("Cookies",claimsPrincipal);
+                _httpContextAccessor.HttpContext.Response.Cookies.Append("user",authToken);
 
                 serviceResponse.Data = userInfo;
                 serviceResponse.Message = "Login successfully";

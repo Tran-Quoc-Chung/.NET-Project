@@ -62,7 +62,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpPut("update/{id}")]
-
     public async Task<ActionResult<ServiceResponse<RoleDTO>>> UpdateRole(RoleDTO RoleDTO, int id)
     {
         if (id != 0)

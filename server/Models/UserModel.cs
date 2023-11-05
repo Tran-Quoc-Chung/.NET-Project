@@ -21,6 +21,7 @@ namespace server.Models
         public string Address { get; set; } = string.Empty;
         [Required]
         public StatusActive Status { get; set; }
+        //displayname
 
     }
 }

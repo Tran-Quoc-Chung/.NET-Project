@@ -51,6 +51,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("CreateRole", policy => policy.RequireClaim("Permission", "CreateRole"));
+
 });
 
 builder.Services.AddTransient<IMailService, MailService>();
@@ -84,7 +85,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
 
 app.MapControllers();
 

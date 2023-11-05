@@ -54,8 +54,8 @@ public class UserController : ControllerBase
             {
                 return BadRequest("Email or user password not valid");
             }
-            var tokenAuth = _authJwtToken.CreateToken(loginUserDTO.Email);
-            return Ok(new {status = await _userService.UserLogin(loginUserDTO ),Token=tokenAuth });
+            
+            return await _userService.UserLogin(loginUserDTO );
         }
         catch (Exception ex)
         {
