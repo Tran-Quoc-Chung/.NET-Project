@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Security.Claims;
 using AutoMapper;
 using BCrypt.Net;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -47,8 +48,9 @@ namespace server.Service
                     return serviceResponse;
                 }
 
-                var passwordHash = BCrypt.Net.BCrypt.HashPassword(addUserDTO.UserPassword);
-                var checkStatusExist = await _dataContext.StatusActives.FirstOrDefaultAsync(c => c.StatusID == addUserDTO.StatusActive);
+                var passwordHash = BCrypt.Net.BCrypt.HashPassword(addUserDTO.Password);
+                var checkStatusExist = await _dataContext.SystemStatus.FirstOrDefaultAsync(c => c.StatusID == addUserDTO.StatusActive);
+                var checkGender = await _dataContext.Genders.FirstOrDefaultAsync(c => c.GenderID == addUserDTO.GenderID);
                 if (checkStatusExist is null)
                 {
                     serviceResponse.Success = false;
@@ -57,12 +59,14 @@ namespace server.Service
                 }
 
                 var newUser = _mapper.Map<User>(addUserDTO);
-                newUser.UserPassword = passwordHash;
+                newUser.Password = passwordHash;
                 newUser.Status = checkStatusExist;
+                newUser.Gender = checkGender;
                 _dataContext.Users.Add(newUser);
                 await _dataContext.SaveChangesAsync();
 
                 serviceResponse.Data = _mapper.Map<GetUserDTO>(newUser);
+
             }
             catch (Exception ex)
             {
@@ -72,11 +76,110 @@ namespace server.Service
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetUserDTO>>> GetAllUser()
+        public async Task<ServiceResponse<List<GetAllUserDTO>>> GetAllUser()
         {
-            var serviceResponse = new ServiceResponse<List<GetUserDTO>>();
-            var dbUser = await _dataContext.Users.Include(u => u.Status).ToListAsync();
-            serviceResponse.Data = dbUser.Select(x => _mapper.Map<GetUserDTO>(x)).ToList();
+            var serviceResponse = new ServiceResponse<List<GetAllUserDTO>>();
+            var dbUser = await _dataContext.Users.Include(u => u.Status).Include(u => u.Gender).ToListAsync();
+
+            serviceResponse.Data = dbUser.Select(x => new GetAllUserDTO
+            {
+                UserID = x.UserID,
+                Displayname = x.DisplayName,
+                RoleName = _dataContext.UserToRoles.Where(item => item.UserID == x.UserID).Select(item => item.Role.RoleName).FirstOrDefault() ?? "",
+                Status = x.Status.StatusName,
+                Email = x.Email
+            }).ToList();
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<GetUserDTO>> GetUserById(int id)
+        {
+            var serviceResponse = new ServiceResponse<GetUserDTO>();
+            var user = await _dataContext.Users.Include(u => u.Status).Include(u => u.Gender).FirstOrDefaultAsync(x => x.UserID == id);
+            if (user is null)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "Không tìm thấy dữ liệu người dùng";
+                return serviceResponse;
+            }
+            var roleId = await _userToRoleService.GetRoleByUserId(user.UserID);
+            var userInfo = new GetUserDTO()
+            {
+                UserID = user.UserID,
+                Displayname = user.DisplayName,
+                Email = user.Email,
+                Phone = user.Phone!,
+                Status = user.Status.StatusID,
+                GenderID = user.Gender.GenderID,
+                RoleID = roleId.Data.RoleID,
+                Address = user.Address!
+            };
+
+            serviceResponse.Success = true;
+            serviceResponse.Data = userInfo;
+            return serviceResponse;
+        }
+        public async Task<ServiceResponse<GetUserDTO>> UpdateUser(GetUserDTO getUserDTO)
+        {
+            var serviceResponse = new ServiceResponse<GetUserDTO>();
+            var newStatus = await _dataContext.SystemStatus.FirstOrDefaultAsync(x => x.StatusID == getUserDTO.Status);
+            var newGender = await _dataContext.Genders.FirstOrDefaultAsync(x => x.GenderID == getUserDTO.GenderID);
+            var newRole = await _dataContext.Roles.FirstOrDefaultAsync(x => x.RoleID == getUserDTO.RoleID);
+            var userUpdate = await _dataContext.Users.FirstOrDefaultAsync(x => x.UserID == getUserDTO.UserID);
+
+            if (newStatus is null || newGender is null || newRole is null || userUpdate is null)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "Dữ liệu không hợp lệ";
+                return serviceResponse;
+            }
+
+            userUpdate.Email = getUserDTO.Email;
+            userUpdate.Address = getUserDTO.Address;
+            userUpdate.Phone = getUserDTO.Phone;
+            userUpdate.DisplayName = getUserDTO.Displayname;
+            userUpdate.Gender = newGender;
+            userUpdate.Status = newStatus;
+
+            //create new role
+            var updateRole = new UserToRoleDTO
+            {
+                UserID = getUserDTO.UserID,
+                RoleID = newRole.RoleID
+            };
+            await _userToRoleService.UpdateUserToRole(updateRole);
+
+            await _dataContext.SaveChangesAsync();
+            serviceResponse.Message = "Update successfully";
+            serviceResponse.Success = true;
+            return serviceResponse;
+        }
+        public async Task<ServiceResponse<GetUserDTO>> DeleteUser(int id)
+        {
+            var serviceResponse = new ServiceResponse<GetUserDTO>();
+
+            try
+            {
+                var user = await _dataContext.Users.FirstOrDefaultAsync(x => x.UserID == id);
+                if (user == null)
+                {
+                    serviceResponse.Success = false;
+                    serviceResponse.Message = "Người dùng không tồn tại.";
+                    return serviceResponse;
+                }
+                var userToRoles = _dataContext.UserToRoles.Where(x => x.UserID == user.UserID).ToList();
+                _dataContext.UserToRoles.RemoveRange(userToRoles);
+                _dataContext.Users.Remove(user);
+                await _dataContext.SaveChangesAsync();
+                serviceResponse.Success = true;
+                serviceResponse.Message = "Xóa người dùng thành công";
+            }
+            catch (System.Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "Lỗi khi xóa người dùng: " + ex.Message;
+            }
             return serviceResponse;
         }
 
@@ -89,40 +192,53 @@ namespace server.Service
                 var user = await _dataContext.Users.Include(u => u.Status).FirstOrDefaultAsync(u => u.Email == loginUserDTO.Email);
                 if (user is null)
                 {
-                    serviceResponse.Message = "User not exist or not found";
+                    serviceResponse.Message = "Không tìm thấy người dùng";
                     serviceResponse.Success = false;
                     return serviceResponse;
                 }
                 if (user.Status.StatusID == 2)
                 {
-                    serviceResponse.Message = "Your account has been inactive";
+                    serviceResponse.Message = "Tài khoản đã ngừng kích hoạt";
                     serviceResponse.Success = false;
                     return serviceResponse;
                 }
-                if (!BCrypt.Net.BCrypt.Verify(loginUserDTO.UserPassword, user.UserPassword))
+                if (!BCrypt.Net.BCrypt.Verify(loginUserDTO.Password, user.Password))
                 {
-                    serviceResponse.Message = "User password is wrong";
+                    serviceResponse.Message = "Sai mật khẩu";
                     serviceResponse.Success = false;
                     return serviceResponse;
                 }
-                
                 var roleID = await _userToRoleService.GetRoleByUserId(user.UserID);
+
                 var listPermission = await _roleToPermission.GetAllPermissionByRoleID(roleID.Data.RoleID);
+
                 var userInfo = new GetUserDTO
                 {
                     Email = user.Email,
-                    UserName = user.UserName,
-                    Status = user.Status.StatusName,
+                    Status = user.Status.StatusID,
                     Phone = user.Phone,
-                    RoleID = roleID.Data.RoleID != null ? roleID.Data.RoleID : null
+                    Displayname=user.DisplayName,
+                    RoleID = roleID.Data.RoleID != null ? roleID.Data.RoleID : null,
+                    ListPermission = listPermission.Data.PermissionID.ToList()
                 };
+
+                var authToken = _authJwtToken.CreateToken(userInfo.Email, user.UserID);
                 var claims = listPermission.Data.PermissionName
                     .Select(permission => new Claim("Permission", permission)).ToList();
 
                 var claimsIdentity = new ClaimsIdentity(claims, "custom");
                 var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-                await _httpContextAccessor.HttpContext.SignInAsync("Cookies",claimsPrincipal);
+                await _httpContextAccessor.HttpContext.SignInAsync("Cookies", claimsPrincipal);
+                _httpContextAccessor.HttpContext.Response.Cookies.Append("user", authToken, new CookieOptions
+                {
+
+                    IsEssential = true,
+                    // HttpOnly = true, // Đảm bảo cookie chỉ có thể được đọc bởi máy chủ và không thể thay đổi từ phía máy khách.
+                    SameSite = SameSiteMode.Lax, // Ngăn chặn việc gửi cookie trong các yêu cầu từ trang khác.
+                    //  Secure = false, // Yêu cầu sử dụng kết nối an toàn (HTTPS) để truyền cookie.
+                    Expires = DateTimeOffset.UtcNow.AddDays(1) 
+                });
 
                 serviceResponse.Data = userInfo;
                 serviceResponse.Message = "Login successfully";
@@ -131,6 +247,7 @@ namespace server.Service
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 throw new Exception("Login exception. Err:" + ex.Message);
             }
         }
@@ -166,8 +283,8 @@ namespace server.Service
             var serviceResponse = new ServiceResponse<GetUserDTO>();
             try
             {
-                string email = _authJwtToken.ValidateToken(token);
-                var user = await _dataContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+                UserInfo userInfo = _authJwtToken.ValidateToken(token);
+                var user = await _dataContext.Users.FirstOrDefaultAsync(u => u.Email == userInfo.Email);
 
                 if (user is null)
                 {
@@ -176,7 +293,7 @@ namespace server.Service
                     return serviceResponse;
                 }
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-                user.UserPassword = passwordHash;
+                user.Password = passwordHash;
                 await _dataContext.SaveChangesAsync();
 
                 serviceResponse.Data = _mapper.Map<GetUserDTO>(user);

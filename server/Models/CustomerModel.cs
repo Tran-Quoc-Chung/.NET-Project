@@ -10,13 +10,10 @@ namespace server.Models
         [Required]
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; } = string.Empty;
-        [Required]
-        public string UserName { get; set; } = string.Empty;
-        [MaxLength(20)]
-        [MinLength(6)]
-        public string UserPassword { get; set; } = string.Empty;
-        [Unicode]
-        public string Phone { get; set; } = string.Empty;
-        public DateTime Birthday { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string? Phone { get; set; } = string.Empty;
+        public DateTime? Birthday { get; set; }
+        public string? Address { get; set; }
     }
 }

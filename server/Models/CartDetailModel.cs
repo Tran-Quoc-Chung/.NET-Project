@@ -9,7 +9,8 @@ namespace server.Models
         [Required]
         public Cart Cartid { get; set; }
         [Required]
-        public Product Product { get; set; }
+        public Product Productid { get; set; }
+        public int Quantity { get; set; }
         
     }
 }

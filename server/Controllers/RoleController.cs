@@ -19,7 +19,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<ActionResult<ServiceResponse<List<RoleDTO>>>> GetAllRole()
     {
         //ServiceResponse<List<>>
@@ -47,7 +46,7 @@ public class RoleController : ControllerBase
         }
     }
 
-    [Authorize( Policy="CreateRole")]
+    //[Authorize( Policy="CreateRole")]
     [HttpPost("createnew")]
     public async Task<ActionResult<ServiceResponse<List<RoleDTO>>>> CreateNew(RoleDTO RoleDTO)
     {
@@ -57,12 +56,11 @@ public class RoleController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = "Create Role faile", err = ex.Message });
+            return BadRequest(new { message = "Create Role failed", err = ex.Message });
         }
     }
 
     [HttpPut("update/{id}")]
-
     public async Task<ActionResult<ServiceResponse<RoleDTO>>> UpdateRole(RoleDTO RoleDTO, int id)
     {
         if (id != 0)

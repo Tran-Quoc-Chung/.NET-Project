@@ -14,7 +14,7 @@ namespace server.Models
         [Required]
         public int Rating { get; set; }
         [Required]
-        public string Image { get; set; } = string.Empty;
+        public List<Images>? Image { get; set; }
         [Required]
         public DateTime CreateAt { get; set; }
         
