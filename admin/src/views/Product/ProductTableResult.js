@@ -1,10 +1,26 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CForm, CRow, CCol, CFormLabel, CFormInput, CFormSelect } from '@coreui/react'
 import DataTable from 'react-data-table-component';
+import userApi from 'src/service/UserService';
 function ProductTableResult(props) {
     const { tableHeader, tableBody } = props.value;
     const { selectValue } = props;
     const [dataTable, setDataTable] = useState(tableBody);
+    const [allUser, setAllUser] = useState();
+    useEffect(() => {
+        const fetchData = async () => {
+            const userList = await userApi.getAllUser();
+            if (userList) {
+                setAllUser(userList.data)
+            }
+        }
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        setDataTable(tableBody)
+    },[tableBody])
+
     const handleFilter = (e) => {
         const { name, value } = e.target;
         const newData = tableBody.filter(row => {
@@ -12,7 +28,6 @@ function ProductTableResult(props) {
             return cellValue.toLowerCase().includes(value.toLowerCase());
         });
         setDataTable(newData);
-        
     };
     const handleChange = (state) => {
         selectValue(state);
@@ -78,7 +93,7 @@ function ProductTableResult(props) {
                             <CFormLabel className="mt-2">ID</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormInput name='roleId' onChange={(e)=>handleFilter(e)}/>
+                            <CFormInput name='productID' onChange={(e)=>handleFilter(e)}/>
                         </CCol>
                     </CRow>
                     <CRow className='col-md-6 mb-2'>
@@ -86,7 +101,7 @@ function ProductTableResult(props) {
                             <CFormLabel className="mt-2">Tên sản phẩm</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormInput name='roleName' onChange={(e)=>handleFilter(e)}/>
+                            <CFormInput name='productName' onChange={(e)=>handleFilter(e)}/>
                         </CCol>
                     </CRow>
                     <CRow className='col-md-6 mb-2'>
@@ -94,7 +109,7 @@ function ProductTableResult(props) {
                             <CFormLabel className="mt-2">Tag</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormSelect name='createBy' onChange={(e)=>handleFilter(e)}>
+                            <CFormSelect name='tagName' onChange={(e)=>handleFilter(e)}>
                                 <option value=""></option>
                                 <option value="Hoạt động">Mark</option>
                                 <option value="Ngưng hoạt động">Alen</option>
@@ -106,10 +121,11 @@ function ProductTableResult(props) {
                             <CFormLabel className="mt-2">Người tạo</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormSelect name='createBy' onChange={(e)=>handleFilter(e)}>
-                                <option value=""></option>
-                                <option value="Hoạt động">Mark</option>
-                                <option value="Ngưng hoạt động">Alen</option>
+                            <CFormSelect name='createdBy' onChange={(e) => handleFilter(e)}>
+                                <option></option>
+                                {allUser && allUser.map(item => (
+                                    <option value={item.displayname}>{item.displayname}</option>
+                               ))}
                             </CFormSelect>
                         </CCol>
                     </CRow>
@@ -122,7 +138,9 @@ function ProductTableResult(props) {
                 fixedHeader
                 selectableRows
                 customStyles={tableCustomStyles}
-                onSelectedRowsChange={(e)=>handleChange(e)}
+                onSelectedRowsChange={(e) => handleChange(e)}
+                clearSelectedRows={true}
+                selectableRowsSingle
             >
             </DataTable>
         </div>

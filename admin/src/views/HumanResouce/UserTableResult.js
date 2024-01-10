@@ -1,10 +1,16 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CForm, CRow, CCol, CFormLabel, CFormInput, CFormSelect } from '@coreui/react'
 import DataTable from 'react-data-table-component';
 function UserTableResult(props) {
     const { tableHeaderValue, tableBodyValue } = props.value;
     const { selectValue } = props;
     const [dataTable, setDataTable] = useState(tableBodyValue);
+
+    useEffect(() => {
+        setDataTable(tableBodyValue)
+        handleChange({});
+    }, [tableBodyValue]);
+
     const handleFilter = (e) => {
         const { name, value } = e.target;
         const newData = tableBodyValue.filter(row => {
@@ -12,7 +18,7 @@ function UserTableResult(props) {
             return cellValue.toLowerCase().includes(value.toLowerCase());
         });
         setDataTable(newData);
-        
+
     };
     const handleChange = (state) => {
         selectValue(state);
@@ -68,6 +74,7 @@ function UserTableResult(props) {
         }
 
     }
+
     return (
         <div className='container mt-5 bg-container'>
             <CForm className='mb-4 '>
@@ -78,7 +85,7 @@ function UserTableResult(props) {
                             <CFormLabel className="mt-2">ID</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormInput name='id' onChange={(e)=>handleFilter(e)}/>
+                            <CFormInput name='userID' onChange={(e) => handleFilter(e)} />
                         </CCol>
                     </CRow>
                     <CRow className='col-md-6 mb-2'>
@@ -86,7 +93,7 @@ function UserTableResult(props) {
                             <CFormLabel className="mt-2">Tên nhân viên</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormInput name='name' onChange={(e)=>handleFilter(e)}/>
+                            <CFormInput name='displayname' onChange={(e) => handleFilter(e)} />
                         </CCol>
                     </CRow>
                     <CRow className='col-md-6 mb-2'>
@@ -94,19 +101,15 @@ function UserTableResult(props) {
                             <CFormLabel className="mt-2">Số điện thoại</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormInput name='phoneNumber' onChange={(e)=>handleFilter(e)}/>
+                            <CFormInput name='phone' onChange={(e) => handleFilter(e)} />
                         </CCol>
                     </CRow>
                     <CRow className='col-md-6 mb-2'>
                         <CCol md="3" className='d-flex align-items-center'>
-                            <CFormLabel className="mt-2">Trạng thái</CFormLabel>
+                            <CFormLabel className="mt-2">Email</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormSelect name='status' onChange={(e)=>handleFilter(e)}>
-                                <option value=""></option>
-                                <option value="Hoạt động">Hoạt động</option>
-                                <option value="Ngưng hoạt động">Ngưng hoạt động</option>
-                            </CFormSelect>
+                        <CFormInput name='email' onChange={(e) => handleFilter(e)} />
                         </CCol>
                     </CRow>
                 </CRow>
@@ -118,7 +121,9 @@ function UserTableResult(props) {
                 fixedHeader
                 selectableRows
                 customStyles={tableCustomStyles}
-                onSelectedRowsChange={(e)=>handleChange(e)}
+                onSelectedRowsChange={(e) => handleChange(e)}
+                clearSelectedRows={true}
+                selectableRowsSingle
             >
             </DataTable>
         </div>

@@ -1,9 +1,28 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Category from '../component/Category'
 import ProductList from '../component/ProductList'
+import productApi from '../service/ProductService';
+
 
 function WomanWatch() {
-    
+    const [product, setProduct] = useState([]);
+    const [showMore, setShowMore] = useState();
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const modelSearch = {
+        Page: 1,
+        Gender: 2,
+        Price: null,
+        Sort:null
+    }
+    const fetchData = async () => {
+        await productApi.getAll(modelSearch).then(result => {
+            setProduct(result.data.productList)
+            setShowMore(result.data.remainProduct)
+        });
+    }
     return (
         <div className='product-container'>
             <div className='page-title'>
@@ -24,17 +43,22 @@ function WomanWatch() {
                 </div>
             </div>
             <div className='page-content'>
-            <div className='page-category'>
-                <Category />
-            </div>
-            <div className='page-productlist'>
-                    <ProductList />
-                    <div className='view-more div-hide' >
-                        <a>
-                            Xem thêm <span>5</span> sản phẩm 
-                        </a>
-                    </div>
-            </div>
+                <div className='page-category'>
+                    <Category />
+                </div>
+                <div className='page-productlist'>
+                    {
+                        product && <>
+                            <ProductList product={product} />
+                            <div className={`view-more ${showMore <= 0  ? `div-hide` : '' }`} >
+                                <a>
+                                    Xem thêm <span>{ showMore > 8 ? 8 : 0 }</span> sản phẩm
+                                </a>
+                            </div>
+                        </>
+                    }
+
+                </div>
             </div>
         </div>
     )

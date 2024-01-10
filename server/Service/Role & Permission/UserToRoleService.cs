@@ -20,10 +20,14 @@ public class UserToRoleService : IUserToRoleService
     {
 
         var serviceResponse = new ServiceResponse<UserToRoleDetailDTO>();
-        var dbUserToRole = await _dataContext.UserToRoles.Include(u => u.Role).Include(u => u.User).FirstOrDefaultAsync(x => x.UserID == id);
+        var dbUserToRole = await _dataContext.UserToRoles.Include(u => u.Role).Include(u => u.User).Where(x=>x.UserID==id).FirstOrDefaultAsync();
+        if(dbUserToRole is null){
+            serviceResponse.Message = "Không tìm thấy người dùng có ID trên";
+            serviceResponse.Success = false;
+        }
         serviceResponse.Data = new UserToRoleDetailDTO
         {
-            UserName = dbUserToRole.User.UserName,
+            UserName = dbUserToRole.User.DisplayName,
             RoleName = dbUserToRole.Role.RoleName,
             RoleID =dbUserToRole.RoleID
         };
@@ -38,7 +42,7 @@ public class UserToRoleService : IUserToRoleService
         {
             RoleID = x.RoleID,
             UserID = x.UserID,
-            UserName = x.User.UserName,
+            UserName = x.User.DisplayName,
             RoleName = x.Role.RoleName
         }).ToList();
         return serviceResponse;

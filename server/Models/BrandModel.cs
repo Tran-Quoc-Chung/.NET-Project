@@ -5,9 +5,11 @@ namespace server.Models
     public class Brand
     {
         public int BrandID { get; set; }
-        [Required]
         public string BrandName { get; set; } = string.Empty;
-        [Required]
-        public Original Original { get; set; }
+        public string Original { get; set; } = string.Empty;
+        public string? Description { get; set; } = string.Empty;
+
+        public User CreatedBy { get; set; }= null!;
+        public DateTime CreatedAt { get; set; }
     }
 }

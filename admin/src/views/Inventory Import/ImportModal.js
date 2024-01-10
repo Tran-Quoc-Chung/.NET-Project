@@ -1,14 +1,52 @@
 import { CButton, CCol, CForm, CFormInput, CFormLabel, CFormSelect, CModal, CModalBody, CModalFooter, CModalHeader, CRow } from '@coreui/react';
 import React, { useEffect, useState } from 'react'
 import { DatePicker, Radio, Space } from 'antd';
-
+import inventoryApi from 'src/service/InventoryService';
+import { useFormik } from 'formik';
+import moment from 'moment';
+import noImage from '../../assets/images/no-image.jpg';
+import { VND } from 'src/utils/validateField';
 function ImportModal(props) {
     let { type, setShowModal, data } = props;
     const [show, setShow] = useState(false);
-    let value = data?.selectedRows?.[0] || null
+    let value = data?.selectedRows?.[0] || null;
+    const [importInfo, setImportInfo] = useState();
+    const [productList, setProductList] = useState([]);
     useEffect(() => {
         type !== null ? setShow(true) : setShow(false);
-    }, [type])
+    }, [type]);
+    
+    useEffect(() => {
+        data && inventoryApi.getByID(data.selectedRows[0].inventoryID).then(result => {
+            if (result.success) {
+                setImportInfo(result.data);
+                setProductList(result.data.inventoryDetail)
+            }
+        })
+    }, [data]);
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            InventoryID: !!importInfo ? importInfo?.inventoryID : '',
+            UserID: !!importInfo ? importInfo?.createdBy : JSON.parse(localStorage.getItem("userinfo")).displayname || '',
+            Partner: !!importInfo ? importInfo?.partner : '',
+            Quantity: '',
+            Price: !!importInfo ? importInfo?.price : 0,
+            Discount: !!importInfo ? importInfo?.discount : '',
+            Quantity: !!importInfo ? importInfo?.quantity : 0,
+            Description: !!importInfo ? importInfo?.description : '',
+            Total: !!importInfo ? importInfo?.total : 0,
+            CreatedAt: !!importInfo ? importInfo?.total : new Date().toLocaleDateString()
+        },
+        onSubmit: values => {
+            handleSubmit(values)
+
+        },
+    });
+    const handleSubmit = (values) => {
+
+        
+    }
     return (
         <CModal
             show={show}
@@ -16,7 +54,7 @@ function ImportModal(props) {
             visible={show}
             className='modal-xl'
         >
-            <CModalHeader closeButton>{type} người dùng</CModalHeader>
+            <CModalHeader closeButton>{type} phiếu nhập kho</CModalHeader>
             <CModalBody className='p-4' >
                 <CForm >
                     <CRow md="12">
@@ -27,7 +65,7 @@ function ImportModal(props) {
                                         <CFormLabel className='mt-1'>Mã phiếu</CFormLabel>
                                     </CCol>
                                     <CCol md="7" >
-                                        <CFormInput className='input-readonly' value={data ? value?.roleId : ''} />
+                                        <CFormInput className='input-readonly' value={formik.values.InventoryID} />
                                     </CCol>
                                 </CRow>
                             </CCol>
@@ -37,7 +75,7 @@ function ImportModal(props) {
                                         <CFormLabel className='mt-1'>Đối tác</CFormLabel>
                                     </CCol>
                                     <CCol md="7" >
-                                        <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} defaultValue={!!data ? value?.roleName : ''} />
+                                        <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} value={formik.values.Partner} />
                                     </CCol>
                                 </CRow>
                             </CCol>
@@ -47,7 +85,7 @@ function ImportModal(props) {
                                         <CFormLabel className='mt-1'>Mô tả</CFormLabel>
                                     </CCol>
                                     <CCol md="7" >
-                                        <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} defaultValue={!!data ? value?.roleDesc : ''} />
+                                        <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} value={formik.values.Description} />
                                     </CCol>
                                 </CRow>
                             </CCol>
@@ -57,7 +95,7 @@ function ImportModal(props) {
                                         <CFormLabel className='mt-1'>Tổng số lượng</CFormLabel>
                                     </CCol>
                                     <CCol md="7" >
-                                        <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} defaultValue={!!data ? value?.roleDesc : ''} />
+                                        <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} value={formik.values.Quantity} />
                                     </CCol>
                                 </CRow>
                             </CCol>
@@ -67,21 +105,17 @@ function ImportModal(props) {
                                         <CFormLabel className='mt-1'>Tổng thanh toán</CFormLabel>
                                     </CCol>
                                     <CCol md="7" >
-                                        <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} defaultValue={!!data ? value?.roleDesc : ''} />
+                                        <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} value={VND.format(formik.values.Total)} />
                                     </CCol>
                                 </CRow>
                             </CCol>
                             <CCol md="12" className='mb-3'>
                                 <CRow>
                                     <CCol md="4" >
-                                        <CFormLabel className='mt-1'>Nhân viên</CFormLabel>
+                                        <CFormLabel className='mt-1'>Chiết khấu</CFormLabel>
                                     </CCol>
                                     <CCol md="7" >
-                                        <CFormSelect className={type === 'Xem' ? 'input-readonly' : ''} onChange={(e) => handleFilter(e)}>
-                                            <option value=""></option>
-                                            <option value="Hoạt động">Mark</option>
-                                            <option value="Ngưng hoạt động">Alen</option>
-                                        </CFormSelect>
+                                    <CFormInput className={type === 'Xem' ? 'input-readonly' : ''} value={formik.values.Discount} />
                                     </CCol>
                                 </CRow>
                             </CCol>
@@ -93,7 +127,7 @@ function ImportModal(props) {
                                     </CCol>
                                     <CCol md="7" >
                                         <Space direction="vertical" size={17} className='w-100 '>
-                                            <DatePicker size='large' className='w-100 input-readonly' />
+                                            <DatePicker size='large' className='w-100 input-readonly' value={moment(formik.values.CreatedAt, 'DD/MM/YYYY')}/>
                                         </Space>
                                     </CCol>
                                 </CRow>
@@ -104,7 +138,7 @@ function ImportModal(props) {
                                         <CFormLabel className='mt-1'>Người tạo</CFormLabel>
                                     </CCol>
                                     <CCol md="7" >
-                                        <CFormInput className='input-readonly' defaultValue={!!data ? value?.roleDesc : ''} />
+                                        <CFormInput className='input-readonly' value={formik.values.UserID} />
                                     </CCol>
                                 </CRow>
                             </CCol>
@@ -115,42 +149,17 @@ function ImportModal(props) {
                                 <CCol md={10} className='text-center'>Sản phẩm</CCol>
                                 <CCol md={2}>SL</CCol>
                             </CRow>
-                        <CRow md={12} className='mb-3'>
-                                <CCol md={3}>
-                                    <img src='https://cdn.tgdd.vn/Products/Images/7077/314714/apple-watch-ultra-lte-49mm-vien-titanium-day-trail-den-thumb-1-600x600.jpg' alt='Not found' className='img-thumbnail'/>
-                                </CCol>
-                                <CCol md={7}>
-                                    <CFormLabel className='fs-6 text-center overflow-hidden align-items-center mt-auto'>Đồng hồ thông minh Apple Watch chính hãng, giá tốt, trả góp 0% - 11/2023</CFormLabel>
-                                </CCol>
-                                <CCol md={2}>5</CCol>
-                        </CRow>
-                        <CRow md={12} className='mb-3'>
-                                <CCol md={3}>
-                                    <img src='https://cdn.tgdd.vn/Products/Images/7077/314714/apple-watch-ultra-lte-49mm-vien-titanium-day-trail-den-thumb-1-600x600.jpg' alt='Not found' className='img-thumbnail'/>
-                                </CCol>
-                                <CCol md={7}>
-                                    <CFormLabel className='fs-6 text-center overflow-hidden align-items-center mt-auto'>Đồng hồ thông minh Apple Watch chính hãng, giá tốt, trả góp 0% - 11/2023</CFormLabel>
-                                </CCol>
-                                <CCol md={2}>5</CCol>
-                        </CRow>
-                        <CRow md={12} className='mb-3'>
-                                <CCol md={3}>
-                                    <img src='https://cdn.tgdd.vn/Products/Images/7077/314714/apple-watch-ultra-lte-49mm-vien-titanium-day-trail-den-thumb-1-600x600.jpg' alt='Not found' className='img-thumbnail'/>
-                                </CCol>
-                                <CCol md={7}>
-                                    <CFormLabel className='fs-6 text-center overflow-hidden align-items-center mt-auto'>Đồng hồ thông minh Apple Watch chính hãng, giá tốt, trả góp 0% - 11/2023</CFormLabel>
-                                </CCol>
-                                <CCol md={2}>5</CCol>
-                        </CRow>
-                        <CRow md={12} className='mb-3'>
-                                <CCol md={3}>
-                                    <img src='https://cdn.tgdd.vn/Products/Images/7077/314714/apple-watch-ultra-lte-49mm-vien-titanium-day-trail-den-thumb-1-600x600.jpg' alt='Not found' className='img-thumbnail'/>
-                                </CCol>
-                                <CCol md={7}>
-                                    <CFormLabel className='fs-6 text-center overflow-hidden align-items-center mt-auto'>Đồng hồ thông minh Apple Watch chính hãng, giá tốt, trả góp 0% - 11/2023</CFormLabel>
-                                </CCol>
-                                <CCol md={2}>5</CCol>
-                        </CRow>
+                            {productList && productList.map((item) => (
+                            <CRow md={12} className='mb-3'>
+                            <CCol md={3}>
+                                <img src={item.images[0] || noImage} alt='Not found' className='img-thumbnail'/>
+                            </CCol>
+                            <CCol md={7}>
+                                        <CFormLabel className='fs-6 text-center overflow-hidden align-items-center mt-auto'>{ item.productName}</CFormLabel>
+                            </CCol>
+                                    <CCol md={2}>{ item.quantity}</CCol>
+                    </CRow>
+                        ))}
                         </CCol>
                     </CRow>
                 </CForm>

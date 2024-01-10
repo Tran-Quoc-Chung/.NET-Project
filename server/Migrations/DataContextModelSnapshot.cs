@@ -34,12 +34,22 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OriginalID")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserID")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Original")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("BrandID");
 
-                    b.HasIndex("OriginalID");
+                    b.HasIndex("CreatedByUserID");
 
                     b.ToTable("Brand", (string)null);
                 });
@@ -58,14 +68,9 @@ namespace server.Migrations
                     b.Property<int>("TotalCart")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
-
                     b.HasKey("CartID");
 
                     b.HasIndex("CustomerID");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Cart", (string)null);
                 });
@@ -82,6 +87,9 @@ namespace server.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("CartDetailID");
@@ -111,10 +119,6 @@ namespace server.Migrations
                     b.Property<int>("CustomerID")
                         .HasColumnType("int");
 
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
 
@@ -138,26 +142,26 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerID"));
 
-                    b.Property<DateTime>("Birthday")
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Phone")
-                        .IsRequired()
-                        .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserPassword")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("CustomerID");
 
@@ -172,11 +176,22 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DialShapeID"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DialShapeName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DialShapeID");
+
+                    b.HasIndex("CreatedByUserID");
 
                     b.ToTable("DialShape", (string)null);
                 });
@@ -189,11 +204,22 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DialSizeID"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DialSizeName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DialSizeID");
+
+                    b.HasIndex("CreatedByUserID");
 
                     b.ToTable("DialSize", (string)null);
                 });
@@ -215,6 +241,110 @@ namespace server.Migrations
                     b.ToTable("Gender", (string)null);
                 });
 
+            modelBuilder.Entity("server.Models.Images", b =>
+                {
+                    b.Property<int>("ImagesID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImagesID"));
+
+                    b.Property<int?>("CommentID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImagesDesc")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagesType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagesUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ImagesID");
+
+                    b.HasIndex("CommentID");
+
+                    b.HasIndex("ProductID");
+
+                    b.ToTable("Images", (string)null);
+                });
+
+            modelBuilder.Entity("server.Models.Inventory", b =>
+                {
+                    b.Property<int>("InventoryID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InventoryID"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Discount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Partner")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PartnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Total")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("InventoryID");
+
+                    b.HasIndex("PartnerId");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Inventory", (string)null);
+                });
+
+            modelBuilder.Entity("server.Models.InventoryDetail", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("InventoryID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("InventoryID");
+
+                    b.HasIndex("ProductID");
+
+                    b.ToTable("InventoryDetail", (string)null);
+                });
+
             modelBuilder.Entity("server.Models.Invoice", b =>
                 {
                     b.Property<int>("InvoiceID")
@@ -229,36 +359,40 @@ namespace server.Migrations
                     b.Property<int>("CustomerID")
                         .HasColumnType("int");
 
-                    b.Property<float>("Discount")
-                        .HasColumnType("real");
-
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StatusInvoiceID")
+                    b.Property<int>("StatusInvoiceStatusID")
                         .HasColumnType("int");
 
-                    b.Property<float>("Total")
+                    b.Property<float>("SubTotal")
+                        .HasColumnType("real");
+
+                    b.Property<float>("TotalDiscount")
                         .HasColumnType("real");
 
                     b.Property<int>("TotalProduct")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserID")
+                    b.Property<int?>("UserID")
                         .HasColumnType("int");
+
+                    b.Property<string>("VoucherCode")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("InvoiceID");
 
                     b.HasIndex("CustomerID");
 
-                    b.HasIndex("StatusInvoiceID");
+                    b.HasIndex("StatusInvoiceStatusID");
 
                     b.HasIndex("UserID");
+
+                    b.HasIndex("VoucherCode");
 
                     b.ToTable("Invoice", (string)null);
                 });
@@ -274,28 +408,49 @@ namespace server.Migrations
                     b.Property<int>("InvoiceID")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubTotal")
+                        .HasColumnType("int");
+
                     b.HasKey("InvoiceDetailID");
 
                     b.HasIndex("InvoiceID");
 
+                    b.HasIndex("ProductID");
+
                     b.ToTable("InvoiceDetail", (string)null);
                 });
 
-            modelBuilder.Entity("server.Models.Original", b =>
+            modelBuilder.Entity("server.Models.Partner", b =>
                 {
-                    b.Property<int>("OriginalID")
+                    b.Property<int>("PartnerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OriginalID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PartnerId"));
 
-                    b.Property<string>("OriginalName")
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("OriginalID");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Original", (string)null);
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PartnerId");
+
+                    b.ToTable("Partner", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Permission", b =>
@@ -307,7 +462,6 @@ namespace server.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PermissionID"));
 
                     b.Property<string>("PermissionDescription")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PermissionName")
@@ -330,8 +484,16 @@ namespace server.Migrations
                     b.Property<int>("BrandID")
                         .HasColumnType("int");
 
+                    b.Property<string>("Color")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DialShapeID")
@@ -343,20 +505,17 @@ namespace server.Migrations
                     b.Property<int>("GenderID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("InvoiceDetailID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Price")
+                    b.Property<int>("OriginPrice")
                         .HasColumnType("int");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("SellPrice")
                         .HasColumnType("int");
 
-                    b.Property<int>("Sold")
+                    b.Property<int>("StatusActiveStatusID")
                         .HasColumnType("int");
 
                     b.Property<int>("StrapMaterialID")
@@ -371,9 +530,17 @@ namespace server.Migrations
                     b.Property<int>("WaterResistanceID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("import_count")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("sold_count")
+                        .HasColumnType("int");
+
                     b.HasKey("ProductID");
 
                     b.HasIndex("BrandID");
+
+                    b.HasIndex("CreatedByUserID");
 
                     b.HasIndex("DialShapeID");
 
@@ -381,7 +548,7 @@ namespace server.Migrations
 
                     b.HasIndex("GenderID");
 
-                    b.HasIndex("InvoiceDetailID");
+                    b.HasIndex("StatusActiveStatusID");
 
                     b.HasIndex("StrapMaterialID");
 
@@ -400,8 +567,13 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleID"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserID")
+                        .HasColumnType("int");
+
                     b.Property<string>("RoleDescription")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RoleName")
@@ -409,6 +581,8 @@ namespace server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RoleID");
+
+                    b.HasIndex("CreatedByUserID");
 
                     b.ToTable("Role", (string)null);
                 });
@@ -426,23 +600,6 @@ namespace server.Migrations
                     b.HasIndex("PermissionID");
 
                     b.ToTable("RoleToPermission", (string)null);
-                });
-
-            modelBuilder.Entity("server.Models.StatusActive", b =>
-                {
-                    b.Property<int>("StatusID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StatusID"));
-
-                    b.Property<string>("StatusName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("StatusID");
-
-                    b.ToTable("StatusActive", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.StatusInvoice", b =>
@@ -470,13 +627,41 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StrapMaterialID"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("StrapMaterialName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("StrapMaterialID");
 
+                    b.HasIndex("CreatedByUserID");
+
                     b.ToTable("StrapMaterial", (string)null);
+                });
+
+            modelBuilder.Entity("server.Models.SystemStatus", b =>
+                {
+                    b.Property<int>("StatusID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StatusID"));
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("StatusID");
+
+                    b.ToTable("SystemStatus", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Tag", b =>
@@ -505,30 +690,32 @@ namespace server.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
 
                     b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("GenderID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StatusID")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserPassword")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("UserID");
+
+                    b.HasIndex("GenderID");
 
                     b.HasIndex("StatusID");
 
@@ -562,23 +749,36 @@ namespace server.Migrations
                     b.Property<int>("CreatedByUserID")
                         .HasColumnType("int");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float>("Discount")
                         .HasColumnType("real");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityRemain")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("VoucherStatusID")
+                    b.Property<int>("VoucherStatusStatusID")
                         .HasColumnType("int");
 
                     b.HasKey("VoucherCode");
 
                     b.HasIndex("CreatedByUserID");
 
-                    b.HasIndex("VoucherStatusID");
+                    b.HasIndex("VoucherStatusStatusID");
 
                     b.ToTable("Voucher", (string)null);
                 });
@@ -608,24 +808,35 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WaterResistanceID"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("WaterResistanceName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("WaterResistanceID");
 
+                    b.HasIndex("CreatedByUserID");
+
                     b.ToTable("WaterResistance", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Brand", b =>
                 {
-                    b.HasOne("server.Models.Original", "Original")
+                    b.HasOne("server.Models.User", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("OriginalID")
+                        .HasForeignKey("CreatedByUserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Original");
+                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("server.Models.Cart", b =>
@@ -636,15 +847,7 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Models.User", "Userid")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Customerid");
-
-                    b.Navigation("Userid");
                 });
 
             modelBuilder.Entity("server.Models.CartDetail", b =>
@@ -655,7 +858,7 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Models.Product", "Product")
+                    b.HasOne("server.Models.Product", "Productid")
                         .WithMany()
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -663,7 +866,7 @@ namespace server.Migrations
 
                     b.Navigation("Cartid");
 
-                    b.Navigation("Product");
+                    b.Navigation("Productid");
                 });
 
             modelBuilder.Entity("server.Models.Comment", b =>
@@ -685,31 +888,108 @@ namespace server.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("server.Models.Invoice", b =>
+            modelBuilder.Entity("server.Models.DialShape", b =>
                 {
-                    b.HasOne("server.Models.Customer", "Customerid")
+                    b.HasOne("server.Models.User", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CustomerID")
+                        .HasForeignKey("CreatedByUserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Models.StatusInvoice", "StatusInvoice")
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("server.Models.DialSize", b =>
+                {
+                    b.HasOne("server.Models.User", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("StatusInvoiceID")
+                        .HasForeignKey("CreatedByUserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Models.User", "Userid")
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("server.Models.Images", b =>
+                {
+                    b.HasOne("server.Models.Comment", null)
+                        .WithMany("Image")
+                        .HasForeignKey("CommentID");
+
+                    b.HasOne("server.Models.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("server.Models.Inventory", b =>
+                {
+                    b.HasOne("server.Models.Partner", "PartnerID")
+                        .WithMany()
+                        .HasForeignKey("PartnerId");
+
+                    b.HasOne("server.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Customerid");
+                    b.Navigation("PartnerID");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("server.Models.InventoryDetail", b =>
+                {
+                    b.HasOne("server.Models.Inventory", "InventoryId")
+                        .WithMany()
+                        .HasForeignKey("InventoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("server.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventoryId");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("server.Models.Invoice", b =>
+                {
+                    b.HasOne("server.Models.Customer", "CustomerId")
+                        .WithMany()
+                        .HasForeignKey("CustomerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("server.Models.SystemStatus", "StatusInvoice")
+                        .WithMany()
+                        .HasForeignKey("StatusInvoiceStatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("server.Models.User", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserID");
+
+                    b.HasOne("server.Models.Voucher", "Voucher")
+                        .WithMany()
+                        .HasForeignKey("VoucherCode");
+
+                    b.Navigation("CustomerId");
 
                     b.Navigation("StatusInvoice");
 
-                    b.Navigation("Userid");
+                    b.Navigation("UserId");
+
+                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("server.Models.InvoiceDetail", b =>
@@ -720,7 +1000,15 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("server.Models.Product", "Productid")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Invoiceid");
+
+                    b.Navigation("Productid");
                 });
 
             modelBuilder.Entity("server.Models.Product", b =>
@@ -728,6 +1016,12 @@ namespace server.Migrations
                     b.HasOne("server.Models.Brand", "Brand")
                         .WithMany()
                         .HasForeignKey("BrandID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("server.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -749,9 +1043,11 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Models.InvoiceDetail", null)
-                        .WithMany("Products")
-                        .HasForeignKey("InvoiceDetailID");
+                    b.HasOne("server.Models.SystemStatus", "StatusActive")
+                        .WithMany()
+                        .HasForeignKey("StatusActiveStatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("server.Models.StrapMaterial", "StrapMaterial")
                         .WithMany()
@@ -773,17 +1069,32 @@ namespace server.Migrations
 
                     b.Navigation("Brand");
 
+                    b.Navigation("CreatedBy");
+
                     b.Navigation("DialShape");
 
                     b.Navigation("DialSize");
 
                     b.Navigation("Gender");
 
+                    b.Navigation("StatusActive");
+
                     b.Navigation("StrapMaterial");
 
                     b.Navigation("Tag");
 
                     b.Navigation("WaterResistance");
+                });
+
+            modelBuilder.Entity("server.Models.Role", b =>
+                {
+                    b.HasOne("server.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("server.Models.RoleToPermission", b =>
@@ -805,13 +1116,32 @@ namespace server.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("server.Models.StrapMaterial", b =>
+                {
+                    b.HasOne("server.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+                });
+
             modelBuilder.Entity("server.Models.User", b =>
                 {
-                    b.HasOne("server.Models.StatusActive", "Status")
+                    b.HasOne("server.Models.Gender", "Gender")
+                        .WithMany()
+                        .HasForeignKey("GenderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("server.Models.SystemStatus", "Status")
                         .WithMany()
                         .HasForeignKey("StatusID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Gender");
 
                     b.Navigation("Status");
                 });
@@ -843,9 +1173,9 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Models.VoucherStatus", "VoucherStatus")
+                    b.HasOne("server.Models.SystemStatus", "VoucherStatus")
                         .WithMany()
-                        .HasForeignKey("VoucherStatusID")
+                        .HasForeignKey("VoucherStatusStatusID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -854,9 +1184,25 @@ namespace server.Migrations
                     b.Navigation("VoucherStatus");
                 });
 
-            modelBuilder.Entity("server.Models.InvoiceDetail", b =>
+            modelBuilder.Entity("server.Models.WaterResistance", b =>
                 {
-                    b.Navigation("Products");
+                    b.HasOne("server.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("server.Models.Comment", b =>
+                {
+                    b.Navigation("Image");
+                });
+
+            modelBuilder.Entity("server.Models.Product", b =>
+                {
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

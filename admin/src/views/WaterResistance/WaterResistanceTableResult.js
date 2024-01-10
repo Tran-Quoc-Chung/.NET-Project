@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CForm, CRow, CCol, CFormLabel, CFormInput, CFormSelect } from '@coreui/react'
 import DataTable from 'react-data-table-component';
 function WaterResistanceTableResult(props) {
     const { tableHeader, tableBody } = props.value;
     const { selectValue } = props;
     const [dataTable, setDataTable] = useState(tableBody);
+    useEffect(() => {
+        setDataTable(tableBody)
+    },[tableBody])
     const handleFilter = (e) => {
         const { name, value } = e.target;
         const newData = tableBody.filter(row => {
@@ -119,7 +122,9 @@ function WaterResistanceTableResult(props) {
                 fixedHeader
                 selectableRows
                 customStyles={tableCustomStyles}
-                onSelectedRowsChange={(e)=>handleChange(e)}
+                onSelectedRowsChange={(e) => handleChange(e)}
+                clearSelectedRows={true}
+                selectableRowsSingle
             >
             </DataTable>
         </div>

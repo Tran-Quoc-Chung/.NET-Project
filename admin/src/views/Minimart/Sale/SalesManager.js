@@ -1,56 +1,77 @@
 
 import { CButton, CCardBody, CCardHeader, CRow } from '@coreui/react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import SalesManagerModal from './SalesManagerModal';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import UserTableResult from 'src/views/HumanResouce/UserTableResult.js';
 import SaleTable from './SalesTable';
+import invoiceApi from 'src/service/InvoiceService';
+import { VND } from 'src/utils/validateField';
 
 function SalesManager() {
+  const [showModal, setShowModal] = useState(null);
+  const [modalValue, setModalValue] = useState({});
+  const [data, setData] = useState(null);
+  const [invoicePending, setInvoicePending] = useState([]);
+  const [invoiceList, setInvoiceList] = useState([]);
+  const [invoiceSelected, setInvoiceSelected] = useState();
+  const permissionValue = JSON.parse(localStorage.getItem('permission')) || [];
+
+  useEffect(() => {
+    fetchData()
+  }, []);
+  const fetchData =async () => {
+    await invoiceApi.getInvoicePending().then(result => {
+      setInvoicePending(result.data)
+    });
+    await invoiceApi.getInvoiceList().then(result => {
+      setInvoiceList(result.data)
+    })
+  }
   const listOrderHeader = [
     {
       name: 'Số HĐ',
-      selector: row => row.id,
+      selector: row => row.invoiceID,
       sortable: true,
       maxWidth: "70px"
     },
     {
       name: 'Khách hàng',
-      selector: row => row.name,
+      selector: row => row.customer,
       sortable: true,
       minWidth: "140px"
     },  
     {
       name: 'Ngày đặt hàng',
-      selector: row => row.phoneNumber,
+      selector: row => row.createAt,
       minWidth: "160px",
       sortable:true
     },
     {
       name: 'Số lượng',
-      selector: row => row.status,
+      selector: row => row.quantity,
       sortable: true,
       maxWidth: "115px",
     },
     {
       name: 'Tổng tiền',
-      selector: row => row.status,
+      selector: row => row.subTotal,
       sortable: true,
       minWidth: "150px",
+      cell: (row)=>(VND.format(row.subTotal))
     },
     {
       name: 'Ghi chú',
-      selector: row => row.status,
+      selector: row => row.note,
       sortable: true,
       maxWidth: "210px",
     },
     {
       cell: (row) => (
         <>
-        <button id={row.ID} className='button-table btn btn-warning'>Xem</button>
-        <button className='button-table btn btn-success'>Duyệt</button>
-        <button className='button-table btn btn-danger'>Từ chối</button>
+        <button id={row.ID} className='button-table btn btn-warning' onClick={()=>handleShowInvoice(row.invoiceID)}>Xem</button>
+        <button className='button-table btn btn-success' onClick={()=>handleApprove(row.invoiceID)}>Duyệt</button>
+        <button className='button-table btn btn-danger' onClick={()=>{handleReject(row.invoiceID)}}>Từ chối</button>
         </>
       ),
       minWidth:"220px",
@@ -60,262 +81,115 @@ function SalesManager() {
       
     },
 ]
-const listOrderBody = [
-  {
-    id: 1,
-    name: 'Mark',
-    role: 'Manager',
-    phoneNumber: '0123456',
-    status: 'Hoạt động',
-  },
-  {
-    id: 2,
-    name: 'Bob',
-    role: 'Stock staff',
-    phoneNumber: '0123456',
-    status: 'Hoạt động'
-  },
-  {
-    id: 3,
-    name: 'Alen',
-    role: 'Sale staff',
-    phoneNumber: '009876',
-    status: 'Hoạt động'
-  },
-  {
-    "id": 4,
-    "name": "Michael",
-    "role": "Stock staff",
-    "phoneNumber": "5012345",
-    "status": "Ngưng hoạt động"
-  },
-  {
-    "id": 5,
-    "name": "William",
-    "role": "HR Specialist",
-    "phoneNumber": "8123456",
-    "status": "Hoạt động"
-  },
-  {
-    "id": 6,
-    "name": "Alice",
-    "role": "Manager",
-    "phoneNumber": "9012345",
-    "status": "Hoạt động"
-  },
-  {
-    "id": 7,
-    "name": "Eva",
-    "role": "IT Support",
-    "phoneNumber": "7123456",
-    "status": "Ngưng hoạt động"
-  },
-  {
-    "id": 8,
-    "name": "Sophia",
-    "role": "IT Support",
-    "phoneNumber": "9012345",
-    "status": "Ngưng hoạt động"
-  },
-  {
-    "id": 9,
-    "name": "William",
-    "role": "Stock staff",
-    "phoneNumber": "6012345",
-    "status": "Ngưng hoạt động"
-  },
-  {
-    "id": 10,
-    "name": "Daniel",
-    "role": "Stock staff",
-    "phoneNumber": "4012345",
-    "status": "Ngưng hoạt động"
-  },
-  {
-    "id": 11,
-    "name": "Michael",
-    "role": "Manager",
-    "phoneNumber": "4012345",
-    "status": "Hoạt động"
-  },
-  {
-    "id": 12,
-    "name": "Olivia",
-    "role": "Manager",
-    "phoneNumber": "3123456",
-    "status": "Ngưng hoạt động"
-  },
-  {
-    "id": 13,
-    "name": "Sophia",
-    "role": "Stock staff",
-    "phoneNumber": "7012345",
-    "status": "Hoạt động"
-  },
-  {
-    "id": 14,
-    "name": "John",
-    "role": "Manager",
-    "phoneNumber": "5012345",
-    "status": "Hoạt động"
-  },
-  {
-    "id": 15,
-    "name": "Sophia",
-    "role": "IT Support",
-    "phoneNumber": "1012345",
-    "status": "Ngưng hoạt động"
-  },
-  {
-    "id": 16,
-    "name": "Daniel",
-    "role": "Stock staff",
-    "phoneNumber": "7012345",
-    "status": "Hoạt động"
-  },
-  {
-    "id": 17,
-    "name": "Sophia",
-    "role": "Sale staff",
-    "phoneNumber": "8123456",
-    "status": "Hoạt động"
-  },
-  {
-    "id": 18,
-    "name": "Michael",
-    "role": "IT Support",
-    "phoneNumber": "8123456",
-    "status": "Ngưng hoạt động"
-  },
-  {
-    "id": 19,
-    "name": "Eva",
-    "role": "HR Specialist",
-    "phoneNumber": "3012345",
-    "status": "Hoạt động"
-  }
-  
-  ];
   const listInvoiceHeader = [
     {
       name: 'Số HĐ',
-      selector: row => row.id,
+      selector: row => row.invoiceID,
       sortable: true,
       maxWidth: "70px"
     },
     {
       name: 'Khách hàng',
-      selector: row => row.name,
+      selector: row => row.customer,
       sortable: true,
       minWidth: "140px"
     },  
     {
       name: 'Ngày đặt hàng',
-      selector: row => row.phoneNumber,
+      selector: row => row.createAt,
       minWidth: "160px",
       sortable:true
     },
     {
       name: 'Số lượng',
-      selector: row => row.status,
+      selector: row => row.quantity,
       sortable: true,
       maxWidth: "115px",
     },
     {
       name: 'Tổng tiền',
-      selector: row => row.status,
+      selector: row => row.subTotal,
       sortable: true,
       minWidth: "150px",
-    },
-    {
-      name: 'Ghi chú',
-      selector: row => row.status,
-      sortable: true,
-      maxWidth: "210px",
-    },
-    {
-      name: 'Trạng thái',
-      selector: row => row.status,
-      sortable: true,
-      maxWidth: "210px",
+      cell: (row)=>(VND.format(row.subTotal))
     },
     {
       name: 'Nhân viên',
-      selector: row => row.status,
+      selector: row => row.userName,
       sortable: true,
       maxWidth: "210px",
     },
   ]
-  const listInvoiceBody = [
-    {
-      id: 1,
-      name: 'Mark',
-      role: 'Manager',
-      phoneNumber: '0123456',
-      status: 'Hoạt động',
-    },
-    {
-      id: 2,
-      name: 'Bob',
-      role: 'Stock staff',
-      phoneNumber: '0123456',
-      status: 'Hoạt động'
-    },
-    {
-      id: 3,
-      name: 'Alen',
-      role: 'Sale staff',
-      phoneNumber: '009876',
-      status: 'Hoạt động'
-    },
-    {
-      "id": 4,
-      "name": "Michael",
-      "role": "Stock staff",
-      "phoneNumber": "5012345",
-      "status": "Ngưng hoạt động"
-    },
-    {
-      "id": 5,
-      "name": "William",
-      "role": "HR Specialist",
-      "phoneNumber": "8123456",
-      "status": "Hoạt động"
-    },
-  ]
+
 const tableValues = {
   listOrderHeader,
-  listOrderBody,
+  listOrderBody:invoicePending,
   }
   const tableValue2 = {
     listInvoiceHeader,
-    listInvoiceBody
+    listInvoiceBody:invoiceList
 }
   
-  const [showModal, setShowModal] = useState(null);
-  const [modalValue, setModalValue] = useState({});
-  const [data, setData] = useState(null);
-
+  
   const handleShowModal = (type) => {
     if (type === 'Xem' || type === 'Xóa' || type === 'Sửa') {
       if (modalValue.selectedCount != 1) {
         return toast.info('Vui lòng chỉ chọn 1 dòng dữ liệu ')
       }
-      setData(modalValue)
+      console.log(modalValue)
+      setInvoiceSelected(modalValue.selectedRows[0].invoiceID)
       setShowModal(type);
     }else {
       
     }
   }
+  const handleShowInvoice = (invoiceId) => {
+    setInvoiceSelected(invoiceId);
+    setShowModal("Xem");
+  }
+  const handleApprove =async (invoiceId) => {
+    await invoiceApi.approveInvoice(invoiceId).then(result => {
+      if (result.success)
+      {
+        toast.success("Duyệt hóa đơn thành công.")
+        setTimeout(() => {
+          fetchData();
+        }, 1000);
+        }
+    })
+  }
+  const handleReject =async (invoiceId) => {
+    await invoiceApi.rejectInvoice(invoiceId).then(result => {
+      if (result.success)
+      {
+        toast.success("Từ chối hóa đơn thành công.")
+        setTimeout(() => {
+          fetchData();
+        }, 1000);
+        }
+    })
+  }
+  const handleShowError = () => {
+    return toast.error("Không thể thao tác với hóa đơn đã duyệt.")
+  }
+  const hasPermission = (permission) => permissionValue.includes(permission);
 return (
   <>
+    {hasPermission(23) && (
     <SaleTable value1={tableValues} value2={tableValue2} selectValue={setModalValue } />
+    )}
     <div className="d-flex flex-row docs-highlight mb-3 mt-3"  >
+    {hasPermission(22) && (
       <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={() => handleShowModal('Xem') } >Xem</CButton>
-      <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={() => handleShowModal('Sửa') }>Sửa</CButton>
-      <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }}>Xóa</CButton>
+    )}
+    {hasPermission(24) && (
+      <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={() => handleShowError()}>Sửa</CButton>
+    )}
+    {hasPermission(25) && (
+      <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={()=>handleShowError()}>Xóa</CButton>
+    )}
     </div>
-    <SalesManagerModal type={showModal} setShowModal={setShowModal} data={data} />
+    <SalesManagerModal type={showModal} setShowModal={setShowModal} invoiceId={invoiceSelected} />
   </>
 )
 }

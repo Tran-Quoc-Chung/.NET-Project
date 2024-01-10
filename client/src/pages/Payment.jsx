@@ -2,8 +2,19 @@ import React from 'react'
 import { useFormik } from 'formik'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { useSelector } from 'react-redux';
+import { VND } from '../utils/validateField';
+import authApi from '../service/AuthService';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 function Payment() {
+    const cartItem = JSON.parse(localStorage.getItem('usercart'))
+    const customer = Cookies.get('customer');
+    const navigate = useNavigate();
+    if (!customer)
+    {
+        toast.error("Vui lòng đăng nhập để thanh toán");
+        }
     const validate = values => {
         const errors = {};
         if (!values.firstName) {
@@ -29,14 +40,41 @@ function Payment() {
             address: '',
             note:'',
         },
-        validate,
         onSubmit: values => {
-            if (validate===true) {
-                toast.success("Payment successully")
-            }
-        }
+            handleSubmit(values)
+        },
     })
-    return (
+    const handleSubmit = (values) => {
+        if (!values.firstName || !values.lastName || !values.email || !values.phoneNumber || !values.address)
+        {
+            return toast.error("Thông tin nhận hàng không hợp lệ");
+        }
+        const model = {
+            Location: values.address,
+            Note: values?.note,
+            ListProduct: !!cartItem && cartItem?.cartItem
+        }
+        authApi.payment(model).then(result => {
+            if (!result.success) return toast.error("Thanh toán thất bại")
+            toast.success("Tạo hóa đơn thành công. Chờ phản hồi của shop nhé!!");
+            
+            formik.resetForm();
+            navigate('/')
+        })
+    }
+    const handlePhoneNumberChange = (e) => {
+        // Chỉ cho phép nhập số
+        const value = e.target.value.replace(/[^0-9]/g, '');
+    
+        // Cập nhật giá trị trong formik
+        formik.handleChange({
+          target: {
+            name: 'phoneNumber',
+            value,
+          },
+        });
+      };
+    return customer && (
         <div className='payment-container'>
             <div className='customer-info'>
                 <h2>Thông tin thanh toán</h2>
@@ -74,7 +112,7 @@ function Payment() {
                             id="phoneNumber"
                             name="phoneNumber"
                             type="phoneNumber"
-                            onChange={formik.handleChange}
+                            onChange={handlePhoneNumberChange}
                             value={formik.values.phoneNumber} />
                     </p>
                     <p className='field col-1'>
@@ -106,20 +144,22 @@ function Payment() {
                         <th className='product-total'>Tổng</th>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td className='product-name'>BIG BANG 465.OS.1118.VR.1704.MXM18 SANG BLEU 39 <strong>× 1</strong></td>
-                            <td className='product-price'><span>739,370,000 &nbsp;₫</span></td>
+                        {!!cartItem && cartItem.cartItem.map(item => (
+                            <tr>
+                            <td className='product-name'>{item.productName} <strong>× {item.quantity}</strong></td>
+                                <td className='product-price'><span>{ VND.format(item.quantity * item.price)}</span></td>
                         </tr>
+                       ))}
                     </tbody>
                 </table>
                 <div className='payment-total'>
                     <div className='total-info'>
                         <h3>Tổng phụ</h3>
-                        <span>751,900,000  &nbsp;₫</span>
+                        <span> {VND.format(cartItem.total ) || 0}</span>
                     </div>
                     <div className='total-info'>
                         <h3>Khuyến mãi</h3>
-                        <span>1,900,000  &nbsp;₫</span>
+                        <span>{ VND.format(cartItem.discount) || 0}</span>
                     </div>
                     <div className='total-info'>
                         <h3>Giao hàng</h3>
@@ -127,15 +167,15 @@ function Payment() {
                     </div>
                     <div className='total-info'>
                         <h3>Tổng </h3>
-                        <span>751,900,000  &nbsp;₫</span>
+                        <span>{ VND.format(cartItem.total-cartItem.discount)}</span>
                     </div>
                     <div className='payment-submit'>
                         <div className='payment-type'>
-                            <input type='radio' />
+                            <input type='radio' checked={ true} />
                             <label>Trả tiền mặt khi nhận hàng</label>
                         </div>
                         <div className='payment-type'>
-                            <input type='radio' />
+                            <input type='radio' checked={ false} />
                             <label>Chuyển khoản ngân hàng</label>
                         </div>
 

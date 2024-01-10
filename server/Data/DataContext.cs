@@ -8,20 +8,19 @@ namespace server.Data{
         {
             
         }
-        public DbSet<StatusActive> StatusActives { get; set; }
+        public DbSet<SystemStatus> SystemStatus { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<UserToRole> UserToRoles { get; set; }
         public DbSet<RoleToPermission> RoleToPermissions { get; set; }
-        public DbSet<Original> Originals { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<DialShape> DialShapes { get; set; }
         public DbSet<DialSize> DialSizes { get; set; }
         public DbSet<Gender> Genders { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<StrapMaterial> StrapMaterials { get; set; }
-        public DbSet<VoucherStatus> VoucherStatuss { get; set; }
+        public DbSet<VoucherStatus> VoucherStatus { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<WaterResistance> WaterResistances { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -31,11 +30,15 @@ namespace server.Data{
         public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartDetail> CartDetails { get; set; }
-        
+        public DbSet<Inventory> Inventory { get; set; }
+        public DbSet<InventoryDetail> inventoryDetails { get; set; }
+        public DbSet<Images> Images { get; set; }
+        public DbSet<Partner> Partners { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<StatusActive>().ToTable("StatusActive").HasKey(key=>key.StatusID);
+            modelBuilder.Entity<SystemStatus>().ToTable("SystemStatus").HasKey(key=>key.StatusID);
             modelBuilder.Entity<User>().ToTable("User").HasKey(key=>key.UserID);
             modelBuilder.Entity<Role>().ToTable("Role").HasKey(key=>key.RoleID);
             modelBuilder.Entity<Permission>().ToTable("Permission").HasKey(key=>key.PermissionID);
@@ -46,7 +49,6 @@ namespace server.Data{
                 table.RoleID, table.PermissionID
             });
             modelBuilder.Entity<Customer>().ToTable("Customer").HasKey(key=>key.CustomerID);
-            modelBuilder.Entity<Original>().ToTable("Original").HasKey(key=>key.OriginalID);
             modelBuilder.Entity<Brand>().ToTable("Brand").HasKey(key=>key.BrandID);
             modelBuilder.Entity<DialShape>().ToTable("DialShape").HasKey(key=>key.DialShapeID);     
             modelBuilder.Entity<DialSize>().ToTable("DialSize").HasKey(key=>key.DialSizeID);
@@ -63,7 +65,10 @@ namespace server.Data{
             modelBuilder.Entity<Invoice>().ToTable("Invoice").HasKey(key=>key.InvoiceID);
             modelBuilder.Entity<InvoiceDetail>().ToTable("InvoiceDetail").HasKey(key=>key.InvoiceDetailID);
             modelBuilder.Entity<Comment>().ToTable("Comment").HasKey(key=>key.CommentID);
-            
+            modelBuilder.Entity<Inventory>().ToTable("Inventory").HasKey(key => key.InventoryID);
+            modelBuilder.Entity<InventoryDetail>().ToTable("InventoryDetail").HasKey(key => key.ID);
+            modelBuilder.Entity<Images>().ToTable("Images").HasKey(key => key.ImagesID);
+            modelBuilder.Entity<Partner>().ToTable("Partner").HasKey(key => key.PartnerId);
             
         }
     }

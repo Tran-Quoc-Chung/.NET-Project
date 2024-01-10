@@ -23,8 +23,19 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
+import Cookies from 'js-cookie'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const AppHeaderDropdown = () => {
+  const navigate = useNavigate();
+  const handleLogOut = () => {
+    Cookies.remove('user');
+    toast.success("Đăng xuất thành công");
+    setTimeout(() => {
+      navigate("/login")
+    },500)
+  }
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
@@ -84,7 +95,7 @@ const AppHeaderDropdown = () => {
           </CBadge>
         </CDropdownItem>
         <CDropdownDivider />
-        <CDropdownItem href="#">
+        <CDropdownItem href="#" onClick={()=>handleLogOut()}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Lock Account
         </CDropdownItem>

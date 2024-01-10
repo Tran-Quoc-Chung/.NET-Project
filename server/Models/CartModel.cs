@@ -9,8 +9,6 @@ namespace server.Models
         [Required]
         public Customer Customerid { get; set; }
         [Required]
-        public User Userid { get; set; }
-        [Required]
         public int TotalCart { get; set; }
     }
 }

@@ -177,7 +177,7 @@ const Dashboard = () => {
       activity: 'Last week',
     },
   ]
-
+  console.log('check in dashboard')
   return (
     <>
       <WidgetsDropdown />

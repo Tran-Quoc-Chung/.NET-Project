@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CForm, CRow, CCol, CFormLabel, CFormInput, CFormSelect } from '@coreui/react'
 import DataTable from 'react-data-table-component';
 import { DatePicker, Space } from 'antd';
@@ -7,6 +7,10 @@ function PromotionTableResult(props) {
     const { tableHeaderValue, tableBodyValue } = props.value;
     const { selectValue } = props;
     const [dataTable, setDataTable] = useState(tableBodyValue);
+    useEffect(() => {
+        setDataTable(tableBodyValue)
+    }, [tableBodyValue]);
+    
     const handleFilter = (e) => {
         const { name, value } = e.target;
         const newData = tableBodyValue.filter(row => {
@@ -119,7 +123,9 @@ function PromotionTableResult(props) {
                 fixedHeader
                 selectableRows
                 customStyles={tableCustomStyles}
-                onSelectedRowsChange={(e)=>handleChange(e)}
+                onSelectedRowsChange={(e) => handleChange(e)}
+                clearSelectedRows={true}
+                selectableRowsSingle
             >
             </DataTable>
         </div>

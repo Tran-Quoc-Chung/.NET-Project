@@ -1,10 +1,23 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CForm, CRow, CCol, CFormLabel, CFormInput, CFormSelect } from '@coreui/react'
 import DataTable from 'react-data-table-component';
+import userApi from 'src/service/UserService';
+
 function RoleTableResult(props) {
     const { tableHeaderValue, tableBodyValue } = props.value;
     const { selectValue } = props;
-    const [dataTable, setDataTable] = useState(tableBodyValue);
+    const [dataTable, setDataTable] = useState();
+    const [allUser, setAllUser] = useState([]);
+
+    useEffect(() => {
+        setDataTable(tableBodyValue)
+        fetchData()
+    }, [tableBodyValue]);
+
+    const fetchData = async () => {
+        await userApi.getAllUser().then(result=>setAllUser(result.data))
+    }
+
     const handleFilter = (e) => {
         const { name, value } = e.target;
         const newData = tableBodyValue.filter(row => {
@@ -78,7 +91,7 @@ function RoleTableResult(props) {
                             <CFormLabel className="mt-2">Mã vai trò</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormInput name='roleId' onChange={(e)=>handleFilter(e)}/>
+                            <CFormInput name='roleID' onChange={(e)=>handleFilter(e)}/>
                         </CCol>
                     </CRow>
                     <CRow className='col-md-6 mb-2'>
@@ -91,14 +104,10 @@ function RoleTableResult(props) {
                     </CRow>
                     <CRow className='col-md-6 mb-2'>
                         <CCol md="3" className='d-flex align-items-center'>
-                            <CFormLabel className="mt-2">Trạng thái</CFormLabel>
+                            <CFormLabel className="mt-2">Mô tả</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormSelect name='roleStatus' onChange={(e)=>handleFilter(e)}>
-                                <option value=""></option>
-                                <option value="Hoạt động">Hoạt động</option>
-                                <option value="Ngưng hoạt động">Ngưng hoạt động</option>
-                            </CFormSelect>
+                             <CFormInput name='roleDescription' onChange={(e)=>handleFilter(e)}/>
                         </CCol>
                     </CRow>
                     <CRow className='col-md-6 mb-2'>
@@ -106,10 +115,10 @@ function RoleTableResult(props) {
                             <CFormLabel className="mt-2">Người tạo</CFormLabel>
                         </CCol>
                         <CCol md="7">
-                            <CFormSelect name='createBy' onChange={(e)=>handleFilter(e)}>
-                                <option value=""></option>
-                                <option value="Hoạt động">Mark</option>
-                                <option value="Ngưng hoạt động">Alen</option>
+                            <CFormSelect name='createdBy' onChange={(e)=>handleFilter(e)}>
+                                {allUser && allUser.map(item => (
+                                    <option>{item.displayname}</option>
+                                ))}
                             </CFormSelect>
                         </CCol>
                     </CRow>
@@ -122,7 +131,9 @@ function RoleTableResult(props) {
                 fixedHeader
                 selectableRows
                 customStyles={tableCustomStyles}
-                onSelectedRowsChange={(e)=>handleChange(e)}
+                onSelectedRowsChange={(e) => handleChange(e)}
+                clearSelectedRows={true}
+                selectableRowsSingle
             >
             </DataTable>
         </div>

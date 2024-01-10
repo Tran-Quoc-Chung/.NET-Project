@@ -22,48 +22,35 @@ public class RoleToPermissionService : IRoleToPermissionService
     }
     public async Task<ServiceResponse<RoleToPermissionDetailDTO>> CreateRoleToPermission(RoleToPermissionDTO roleToPermissionDTO)
     {
-        var serviceResponse = new ServiceResponse<RoleToPermissionDetailDTO>();
-        var checkRoleExist = await _roleService.GetRoleById(roleToPermissionDTO.RoleID);
-        bool checkPermissionExist = true;
+         var serviceResponse = new ServiceResponse<RoleToPermissionDetailDTO>();
+        try
+        {
+        
+        var existRoleToPermission = await _dataContext.RoleToPermissions
+        .Where(x => x.RoleID == roleToPermissionDTO.RoleID)
+        .ToListAsync();
+          _dataContext.RoleToPermissions.RemoveRange(existRoleToPermission);
 
-        //check có tồn tại id Permission hay không, nếu không thì trả về không hợp lệ
+        // Thêm quyền mới vào cơ sở dữ liệu với từng PermissionID từ danh sách
         foreach (var permissionId in roleToPermissionDTO.PermissionID)
         {
-            var temp = _permissionService.GetPermissionById(permissionId);
-            if (temp == null)
+            var roleToPermission = new RoleToPermission
             {
-                checkPermissionExist = false;
-                break;
-            }
+                RoleID = roleToPermissionDTO.RoleID,
+                PermissionID = permissionId
+            };
+            await _dataContext.RoleToPermissions.AddAsync(roleToPermission);
         }
-
-        if (checkRoleExist != null && checkPermissionExist)
+        await _dataContext.SaveChangesAsync();
+        serviceResponse.Success = true;
+            serviceResponse.Message = "Cập nhật vai trò thành công";
+        }
+        catch (System.Exception ex)
         {
-
-            var existRoleToPermission = await _dataContext.RoleToPermissions
-            .Where(x => x.RoleID == roleToPermissionDTO.RoleID)
-            .ToListAsync();
-            _dataContext.RoleToPermissions.RemoveRange(existRoleToPermission);
-
-            // Thêm quyền mới vào cơ sở dữ liệu với từng PermissionID từ danh sách
-            foreach (var permissionId in roleToPermissionDTO.PermissionID)
-            {
-                var roleToPermission = new RoleToPermission
-                {
-                    RoleID = roleToPermissionDTO.RoleID,
-                    PermissionID = permissionId
-                };
-                _dataContext.RoleToPermissions.Add(roleToPermission);
-            }
-            await _dataContext.SaveChangesAsync();
-            serviceResponse.Success = true;
-            serviceResponse.Message = "Create successfully";
+        serviceResponse.Success = true;
+        serviceResponse.Message = "Cập nhật vai trò thất bại: "+ex.Message;
         }
-        else
-        {
-            serviceResponse.Success = false;
-            serviceResponse.Message = "Create failed";
-        }
+
         return serviceResponse;
     }
 
@@ -73,7 +60,7 @@ public class RoleToPermissionService : IRoleToPermissionService
 
         // Lấy danh sách RoleToPermission dựa trên RoleID
         var listPermission = await _dataContext.RoleToPermissions
-            .Include(x => x.Role).Include(x=>x.Permission)
+            .Include(x => x.Role).Include(x => x.Permission)
             .Where(c => c.RoleID == RoleID)
             .ToListAsync();
 
@@ -84,7 +71,8 @@ public class RoleToPermissionService : IRoleToPermissionService
             var result = new RoleToPermissionDetailDTO
             {
                 RoleName = listPermission.First().Role.RoleName, // Lấy RoleName từ Role đầu tiên
-                PermissionName = listPermission.Select(item => item.Permission.PermissionName).ToList() // Lấy danh sách PermissionName
+                PermissionName = listPermission.Select(item => item.Permission.PermissionName).ToList(),
+                PermissionID = listPermission.Select(item => item.Permission.PermissionID).ToList()
             };
 
             serviceResponse.Data = result;
@@ -93,7 +81,14 @@ public class RoleToPermissionService : IRoleToPermissionService
         else
         {
             serviceResponse.Message = "Permission not found.";
-            serviceResponse.Success = false;
+            serviceResponse.Data = new RoleToPermissionDetailDTO
+            {
+                RoleName = "",
+                PermissionName = new List<string>(),
+                PermissionID = new List<int>()
+            };
+
+
         }
 
         return serviceResponse;

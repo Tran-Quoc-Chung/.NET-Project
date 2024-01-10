@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using server.DTO.User;
 
 namespace server.middlewares
 {
@@ -17,14 +18,16 @@ namespace server.middlewares
             _configuration = configuration;
         }
 
-        public string CreateToken(string email)
+        public string CreateToken(string Email, int UserID)
         {
-            List<Claim> claims = new List<Claim>{
-            new Claim(ClaimTypes.UserData,email)
-            };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration.GetSection("AppSettings:Token").Value!
-            ));
+
+            List<Claim> claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Email, Email),
+        new Claim(ClaimTypes.NameIdentifier, UserID.ToString())
+    };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 
@@ -37,7 +40,8 @@ namespace server.middlewares
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return jwt;
         }
-        public string ValidateToken(string token)
+
+        public UserInfo ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
@@ -56,8 +60,13 @@ namespace server.middlewares
 
                 handler.ValidateToken(token, validationParameters, out var validatedToken);
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var accountEmail = jwtToken.Claims.First(x => x.Type == ClaimTypes.UserData).Value;
-                return accountEmail;
+                var Email = jwtToken.Claims.First(x => x.Type == ClaimTypes.Email).Value;
+                var UserID = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+                return new UserInfo
+                {
+                    Email = Email,
+                    UserID = Int32.Parse(UserID)
+                };
             }
             catch (Exception ex)
             {
@@ -65,5 +74,6 @@ namespace server.middlewares
                 throw new Exception(ex.Message);
             }
         }
+
     }
 }

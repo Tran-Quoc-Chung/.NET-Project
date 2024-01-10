@@ -21,14 +21,7 @@ public class RoleToPermissionController : ControllerBase
     [HttpPost("createnew")]
     public async Task<ActionResult<ServiceResponse<RoleToPermissionDetailDTO>>> CreateNew(RoleToPermissionDTO roleToPermissionDTO)
     {
-        try
-        {
-            return await _RoleToPermission.CreateRoleToPermission(roleToPermissionDTO);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Create UserToRole faile", err = ex.Message });
-        }
+        return await _RoleToPermission.CreateRoleToPermission(roleToPermissionDTO);
     }
     [HttpGet("{id}")]
     public async Task<ActionResult<ServiceResponse<RoleToPermissionDetailDTO>>> GetPermissionByRoleID(int id)
@@ -44,5 +37,5 @@ public class RoleToPermissionController : ControllerBase
         }
     }
 
-    
+
 }

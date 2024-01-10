@@ -40,3 +40,6 @@ $enable-rtl: true;
     align-items: center;
     display: flex;
 }
+.ant-picker-dropdown{
+    z-index: 100;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CForm, CRow, CCol, CFormLabel, CFormInput, CFormSelect } from '@coreui/react'
 import DataTable from 'react-data-table-component';
 function SaleTable(props) {
@@ -7,6 +7,11 @@ function SaleTable(props) {
 
     const { selectValue } = props;
     const [dataTable, setDataTable] = useState(listOrderBody);
+    const [dataInvoice,setDataInvoice]=useState(listInvoiceBody)
+    useEffect(() => {
+        setDataTable(listOrderBody)
+        setDataInvoice(listInvoiceBody)
+    },[listOrderBody,listInvoiceBody])
     const handleFilter = (e) => {
         const { name, value } = e.target;
         const newData = listOrderBody.filter(row => {
@@ -81,6 +86,7 @@ function SaleTable(props) {
                 customStyles={tableCustomStyles}
                 paginationPerPage={5}
                 onSelectedRowsChange={(e) => handleChange(e)}
+                noDataComponent="Chưa có hóa đơn nào được tạo."
             >
             </DataTable>
 
@@ -132,12 +138,14 @@ function SaleTable(props) {
                 </CForm>
                 <DataTable
                     columns={listInvoiceHeader}
-                    data={listInvoiceBody}
+                    data={dataInvoice}
                     pagination
                     fixedHeader
                     customStyles={tableCustomStyles}
                     selectableRows
                     onSelectedRowsChange={(e) => handleChange(e)}
+                    clearSelectedRows={true}
+                    selectableRowsSingle
                 >
 
                 </DataTable>

@@ -1,16 +1,83 @@
 import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFacebook, faTwitter, faInstagram, faThinkPeaks } from '@fortawesome/free-brands-svg-icons';
-import { faCartShopping, faMagnifyingGlass, faTrashCan,faCaretUp } from '@fortawesome/free-solid-svg-icons'
+import { faCartShopping, faMagnifyingGlass, faTrashCan, faCaretUp } from '@fortawesome/free-solid-svg-icons'
 import logo from '../public/images/logoheader.png';
-import watch1 from '../public/images/watch1.jpg';
-import watch2 from '../public/images/watch2.jpg';
-import watch3 from '../public/images/watch3.jpg';
-import watch4 from '../public/images/watch4.jpg';
 import hotline from '../public/images/hotline.gif'
 import Login from './Login';
+import { useNavigate } from 'react-router-dom';
+import { useFormik } from 'formik'
+import authApi from '../service/AuthService';
+import Cookies from 'js-cookie';
+import { useEffect } from 'react';
+import {VND} from '../utils/validateField'
+import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { setCart } from '../features/CartSlice';
 function Header() {
-    const [isLogin, setIsLogin]=useState(false)
+    const navigate = useNavigate();
+    const [isLogin, setIsLogin] = useState(false);
+    const [userInfo, setUserInfo] = useState();
+    const [userCart, setUserCart] = useState();
+    let cartTotal=0;
+    const handleRollBackHome = () => {
+        navigate('/')
+    }
+    useEffect(() => {
+        const fetchData = async () => {
+            const token = Cookies.get('customer');
+            if (token) {
+                authApi.getInfo().then(result => {
+                    if (result.success) {
+                        var userData = JSON.stringify(result.data);
+                        localStorage.setItem('CustomerInfo', userData);
+                        setUserInfo(result.data);
+                        authApi.getCustomerCart().then(result => {
+                            if (result.success) {
+                                if (!!result.data.listProduct.length>0) {
+                                    setUserCart(result.data.listProduct);
+                                } else {
+                                    setUserCart([])
+                                }
+                            }
+                        })
+                    }
+                    else {
+                        localStorage.removeItem('CustomerInfo')
+                    }
+                })
+            } else {
+                localStorage.removeItem('CustomerInfo')
+            }
+        }
+        fetchData()
+    }, []);
+    const handleRemoveCartItem = async (productId) => {
+        await authApi.removeCartItem(productId).then(result => {
+            if (result.success) {
+                toast.success("Xóa sản phẩm khỏi giỏ hàng thành công");
+                authApi.getCustomerCart().then(result => {
+                    if (result.success) {
+                        if (!!result.data.listProduct.length>0) {
+                            setUserCart(result.data.listProduct);
+                        } else {
+                            setUserCart([])
+                        }
+                    }
+                })
+            } else {
+                toast.error("Xóa sản phẩm khỏi giỏ hàng thất bại");
+            }
+        })
+    }
+        userCart && userCart.forEach(item => {
+            cartTotal=item.price+cartTotal
+        });
+    const resetHeader = () => {
+        setUserInfo(null);
+        setUserCart(null);
+
+    }
     return (
         <div className='container-header'>
             <div className='header-info'>
@@ -29,94 +96,48 @@ function Header() {
             </div>
             <div className='header-logo'>
                 <div className='img-logo'>
-                    <img src={logo} alt='not fount' />
+                    <img src={logo} alt='not fount' onClick={handleRollBackHome} />
                 </div>
                 <div className='logo-userinfo'>
                     <ul className='userinfo-ul' >
-                        <li onClick={()=>setIsLogin(!isLogin)}>Đăng nhập</li>
-                        <li><a href='/user/cart'>Giỏ hàng / 0đ</a></li>
+                        <li onClick={() => setIsLogin(!isLogin)}>{!!userInfo ? userInfo.displayName : 'Đăng nhập '}</li>
+                        <li><a href='/user/cart'>Giỏ hàng / { VND.format(cartTotal ||0 )}</a></li>
                         <div className={`drop-login ${isLogin ? '' : 'div-hide'}`} >
-                            
-                        <span className='caret-up'><FontAwesomeIcon icon={faCaretUp} style={{color: "#ffffff",}} /></span>
-                            <Login/>
+
+                            <span className='caret-up'><FontAwesomeIcon icon={faCaretUp} style={{ color: "#ffffff", }} /></span>
+                            <Login resetPage={ resetHeader} />
                         </div>
                     </ul>
                     <div className='logo-cart'>
                         <div class='cart-icon'>
                             <FontAwesomeIcon icon={faCartShopping} />
-                            <div class='item-count'>1</div>
+                            <div class='item-count'>{ userCart && userCart.length > 0 ? userCart.length : 0  }</div>
                         </div>
                         <div className='drop-cart'>
                             <ul>
-                                <li>
+                                {userCart && userCart.map(item => (
+                                    <li>
                                     <div className='li-image'>
-                                        <img src={watch1} alt='not found' />
+                                        <img src={item.image} alt='not found' />
                                     </div>
                                     <div className='li-content'>
-                                        <h4>OMEGA 234.10.39.20.01.001 SEAMASTER 39MM</h4>
+                                        <h4>{item.productName}</h4>
                                         <div className='content-price'>
-                                            <span>1 &nbsp;</span>
+                                            <span>{item.quantity} &nbsp;</span>
                                             <span>x &nbsp;</span>
-                                            <h4>18.999.999 &nbsp; <u>đ</u></h4>
+                                                <h4>{ VND.format(item.price)} </h4>
                                         </div>
                                     </div>
                                     <div className='li-trash'>
-                                        <button>{<FontAwesomeIcon icon={faTrashCan} />}</button>
+                                        <button onClick={()=>handleRemoveCartItem(item.productId)}>{<FontAwesomeIcon icon={faTrashCan} />}</button>
                                     </div>
                                 </li>
-                                <li>
-                                    <div className='li-image'>
-                                        <img src={watch2} alt='not found' />
-                                    </div>
-                                    <div className='li-content'>
-                                        <h4>LONGINES MASTER L2.628.5.77.7 WATCH 38.5MM</h4>
-                                        <div className='content-price'>
-                                            <span>1 &nbsp;</span>
-                                            <span>x &nbsp;</span>
-                                            <h4>12.999.999 &nbsp; <u>đ</u></h4>
-                                        </div>
-                                    </div>
-                                    <div className='li-trash'>
-                                        <button>{<FontAwesomeIcon icon={faTrashCan} />}</button>
-                                    </div>
-                                </li>
-                                
-                                <li>
-                                    <div className='li-image'>
-                                        <img src={watch3} alt='not found' />
-                                    </div>
-                                    <div className='li-content'>
-                                        <h4>FOSSIL ME3104 TOWNSMAN AUTOMATIC LEATHER WATCH 44MM</h4>
-                                        <div className='content-price'>
-                                            <span>1 &nbsp;</span>
-                                            <span>x &nbsp;</span>
-                                            <h4>20.000.000 &nbsp; <u>đ</u></h4>
-                                        </div>
-                                    </div>
-                                    <div className='li-trash'>
-                                        <button>{<FontAwesomeIcon icon={faTrashCan} />}</button>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div className='li-image'>
-                                        <img src={watch4} alt='not found' />
-                                    </div>
-                                    <div className='li-content'>
-                                        <h4>FREDERIQUE CONSTANT FC-312V4S4 SLIMLINE AUTO WATCH 40MM</h4>
-                                        <div className='content-price'>
-                                            <span>1 &nbsp;</span>
-                                            <span>x &nbsp;</span>
-                                            <h4>16.999.999 &nbsp; <u>đ</u></h4>
-                                        </div>
-                                    </div>
-                                    <div className='li-trash'>
-                                        <button>{<FontAwesomeIcon icon={faTrashCan} />}</button>
-                                    </div>
-                                </li>
+                               ))}
+
                             </ul>
                             <div className='drop-total'>
                                 <span>Tổng phụ:&nbsp; </span>
-                                <h4>18.999.999 <u>đ</u></h4>
+                                <h4>{ VND.format(cartTotal || 0 )}</h4>
                             </div>
                             <div className='drop-button'>
                                 <a href='/user/cart'>Xem giỏ hàng</a>

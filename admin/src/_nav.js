@@ -21,6 +21,9 @@ import {
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
+const permissionValue = JSON.parse(localStorage.getItem('permission')) || [];
+
+const hasPermission = (permission) => permissionValue.includes(permission);
 
 const _nav = [
   {
@@ -42,12 +45,14 @@ const _nav = [
     name: 'Bán hàng',
     to: '/minimart/sales',
     icon: <CIcon icon={cibAppStore} customClassName="nav-icon" />,
+
   },
   {
     component: CNavItem,
     name: 'Trả hàng',
     to: '/minimart/sale_return',
     icon: <CIcon icon={cibAppStore} customClassName="nav-icon" />,
+    disabled: hasPermission([22,23,24,25]),
   },
   {
     component: CNavTitle,
@@ -58,12 +63,14 @@ const _nav = [
     name: 'Quản lí người dùng',
     to: '/user/manager',
     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    disabled: hasPermission([1,2,3,4]),
   },
   {
     component: CNavItem,
     name: 'Phân quyền',
     to: '/user/role',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+    disabled: hasPermission([5,6,7,8]),
   },
   {
     component: CNavTitle,
@@ -81,6 +88,7 @@ const _nav = [
         to: '/product',
       },
     ],
+    disabled: hasPermission([10,11,12,13]),
   },
   {
     component: CNavGroup,
@@ -125,12 +133,12 @@ const _nav = [
     to: '/inventory_import',
     icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
   },
-  {
-    component: CNavItem,
-    name: 'Kiểm kho',
-    to: '/inventory_check',
-    icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
-  },
+  // {
+  //   component: CNavItem,
+  //   name: 'Kiểm kho',
+  //   to: '/inventory_check',
+  //   icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+  // },
   {
     component: CNavTitle,
     name: 'Khuyến mãi',
@@ -142,32 +150,42 @@ const _nav = [
     icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
   },
   {
-    component: CNavGroup,
-    name: 'Pages',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Login',
-        to: '/login',
-      },
-      {
-        component: CNavItem,
-        name: 'Register',
-        to: '/register',
-      },
-      {
-        component: CNavItem,
-        name: 'Error 404',
-        to: '/404',
-      },
-      {
-        component: CNavItem,
-        name: 'Error 500',
-        to: '/500',
-      },
-    ],
+    component: CNavTitle,
+    name: 'CRM',
   },
+  {
+    component: CNavItem,
+    name: 'Đối tác',
+    to: '/partner',
+    icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+  },
+  // {
+  //   component: CNavGroup,
+  //   name: 'Pages',
+  //   icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+  //   items: [
+  //     {
+  //       component: CNavItem,
+  //       name: 'Login',
+  //       to: '/login',
+  //     },
+  //     {
+  //       component: CNavItem,
+  //       name: 'Register',
+  //       to: '/register',
+  //     },
+  //     {
+  //       component: CNavItem,
+  //       name: 'Error 404',
+  //       to: '/404',
+  //     },
+  //     {
+  //       component: CNavItem,
+  //       name: 'Error 500',
+  //       to: '/500',
+  //     },
+  //   ],
+  // },
 ]
 
 export default _nav

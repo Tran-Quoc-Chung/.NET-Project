@@ -1,18 +1,44 @@
 
 import { CButton, CCardBody, CCardHeader, CRow } from '@coreui/react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import RoleManagerModal from './RoleManagerModal.js';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import RoleTableResult from './RoleTableResult.js';
 import PermissionModal from './PermissionModal.js';
+import roleApi from 'src/service/RoleService.js';
 
 function RoleManager() {
+    const [allRole, setAllRole] = useState();
+    const [showModal, setShowModal] = useState(null);
+    const [showPermissionModal, setShowPermissionModal] = useState(null);
+    const [modalValue, setModalValue] = useState({});
+    const [data, setData] = useState(null);
+    const [roleSelected, setRoleSelected] = useState();
+    const permissionValue = JSON.parse(localStorage.getItem('permission')) || [];
+    useEffect(() => {
+        fetchData();
+    }, [])
+
+    const fetchData = async () => {
+        await roleApi.getAllrole().then(result => {
+            setAllRole(result.data)
+        });
+    }
+    
+    //reset data
+    useEffect(() => {
+        setModalValue({})
+        setTimeout(() => {
+            fetchData();
+        },"1000")
+    }, [showModal])
+    
     const tableHeaderValue = [
 
         {
             name: 'Mã vai trò',
-            selector: row => row.roleId,
+            selector: row => row.roleID,
             sortable: true,
             maxWidth: "150px"
         },
@@ -23,89 +49,70 @@ function RoleManager() {
         },
         {
             name: 'Mô tả',
-            selector: row => row.roleDesc,
+            selector: row => row.roleDescription,
             sortable: true
         },
         {
-            name: 'Trạng thái',
-            selector: row => row.roleStatus,
+            name: 'Ngày tạo',
+            selector: row => row.createdAt,
         },
         {
             name: 'Người tạo',
-            selector: row => row.createBy,
+            selector: row => row.createdBy,
             sortable: true,
             maxWidth: "170px"
         },
     ]
-    const tableBodyValue = [
-        {
-            roleId: 1,
-            roleName: 'Administrator',
-            roleDesc: 'Quản trị hệ thống',
-            roleStatus: 'Kích hoạt',
-            createBy: 'Chung'
-        },
-        {
-            roleId: 2,
-            roleName: 'Sale Staff',
-            roleDesc: 'Nhân viên bán hàng',
-            roleStatus: 'Kích hoạt',
-        },
-        {
-            roleId: 3,
-            roleName: 'Stock Staff',
-            roleDesc: 'Nhân viên kho',
-            roleStatus: 'Ngừng kích hoạt',
-            createBy: 'Chung'
-        },
-        {
-            roleId: 4,
-            roleName: 'IT Staff',
-            roleDesc: 'Nhân viên bảo trì',
-            roleStatus: 'Ngừng kích hoạt',
-        },
-
-    ];
     const tableValues = {
-        tableHeaderValue,
-        tableBodyValue,
+        tableHeaderValue:tableHeaderValue,
+        tableBodyValue:allRole,
     }
 
-    const [showModal, setShowModal] = useState(null);
-    const [showPerrmissionModal, setShowPermissionModal] = useState(null);
-    const [modalValue, setModalValue] = useState({});
-    const [data, setData] = useState(null);
-
+    const handleShowPermissionModal = () => {
+        if (modalValue.selectedCount != 1) {
+            return toast.info('Vui lòng chỉ chọn 1 dòng dữ liệu ')
+        }
+        setRoleSelected(modalValue)
+        setShowPermissionModal(!showPermissionModal);
+    }
     const handleShowModal = (type) => {
         if (type === 'Xem' || type === 'Xóa' || type === 'Sửa') {
             if (modalValue.selectedCount != 1) {
-                return toast.info('Vui lòng chỉ chọn 1 dòng dữ liệu ')
+                return toast.info('Vui lòng chỉ chọn 1 dòng dữ liệu ');
             }
             setData(modalValue)
             setShowModal(type);
         } else if (type === 'Thêm') {
             setData(null)
             setShowModal(type)
-        } else if(type==='Phân quyền') {
-            if (modalValue.selectedCount != 1) {
-                return toast.info('Vui lòng chỉ chọn 1 dòng dữ liệu ')
-            }
-            console.log('parent',showPerrmissionModal)
-            setShowPermissionModal(type)
         }
     }
+    const hasPermission = (permission) => permissionValue.includes(permission);
+
     return (
         <>
+            {hasPermission(5) && (
             <RoleTableResult value={tableValues} selectValue={setModalValue} />
+            )}
             <div className="d-flex flex-row docs-highlight mb-3 mt-3"  >
+            {hasPermission(5) && (
                 <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={() => handleShowModal('Xem')} >Xem</CButton>
+                )}
+            {hasPermission(6) && (
                 <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={() => handleShowModal('Thêm')}>Thêm</CButton>
-                <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={() => handleShowModal('Sửa')}>Sửa</CButton>
+                )}
+            {hasPermission(7) && (
                 <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }}>Xóa</CButton>
-                <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={()=>handleShowModal('Phân quyền')}>Phân quyền</CButton>
+                )}
+            {hasPermission(8) && (
+                <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={() => handleShowModal('Sửa')}>Sửa</CButton>
+                )}
+            {hasPermission(9) && (
+                <CButton className='mx-2 btn btn-warning' style={{ minWidth: 70 }} onClick={()=>handleShowPermissionModal()}>Phân quyền</CButton>
+                )}
             </div>
             <RoleManagerModal type={showModal} setShowModal={setShowModal} data={data} />
-            <PermissionModal setShowModal={ setShowPermissionModal} type={showPerrmissionModal} data={data} />
+            <PermissionModal setShowModal={ setShowPermissionModal} type={showPermissionModal} data={roleSelected} />
         </>
     )
 }

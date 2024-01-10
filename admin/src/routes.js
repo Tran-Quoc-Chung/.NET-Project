@@ -11,10 +11,11 @@ const dialsize = React.lazy(() => import('./views/DialSize/DialSizeManager'));
 const dialshape = React.lazy(() => import('./views/DialShape/DialShapeManager'));
 const strap_material = React.lazy(() => import('./views/StrapMaterial/StrapMaterialManager'));
 const promotion = React.lazy(() => import('./views/Promotion/PromotionManager'));
-const branch = React.lazy(() => import('./views/Branch/BranchManager'));
+const branch = React.lazy(() => import('./views/Brand/BranchManager'));
 const product = React.lazy(() => import('./views/Product/ProductManager'));
 const inventory_import=React.lazy(() => import('./views/Inventory Import/ImportManager'));
 const inventory_check=React.lazy(() => import('./views/Inventory Check/CheckManager'));
+const partner=React.lazy(() => import('./views/Partner/ParnerManager'));
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -32,6 +33,7 @@ const routes = [
   {path:'/product',name:'Sản phẩm',element:product},
   {path:'/inventory_import',name:'Sản phẩm',element:inventory_import},
   {path:'/inventory_check',name:'Sản phẩm',element:inventory_check},
+  {path:'/partner',name:'Đối tác',element:partner},
 ]
 
 export default routes
